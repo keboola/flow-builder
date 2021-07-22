@@ -1,41 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import Graph, { NodeData } from "./Graph";
 
-interface AppProps {}
+const storageKey = "nodeData";
 
-function App({}: AppProps) {
-  // Create the count state.
-  const [count, setCount] = useState(0);
-  // Create the counter (+1 every second).
-  useEffect(() => {
-    const timer = setTimeout(() => setCount(count + 1), 1000);
-    return () => clearTimeout(timer);
-  }, [count, setCount]);
-  // Return the App component.
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <p>
-          Page has been open for <code>{count}</code> seconds.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </p>
-      </header>
-    </div>
-  );
+function load(): NodeData[] {
+  const nodeData = localStorage.getItem(storageKey);
+  if (nodeData) {
+    return JSON.parse(nodeData);
+  } else {
+    return [
+      { id: "a", pos: [3, 1], size: [2, 2], edges: ["b", "c"] },
+      { id: "b", pos: [1, 4], size: [2, 2], edges: ["d"] },
+      { id: "c", pos: [5, 4], size: [2, 2], edges: ["d"] },
+      { id: "d", pos: [3, 7], size: [2, 2] }
+    ];
+  }
 }
 
-export default App;
+function save(nodeData: NodeData[]) {
+  localStorage.setItem(storageKey, JSON.stringify(nodeData));
+}
+
+export default () => {
+  const [nodes, setNodes] = useState(load());
+  return (
+    <Graph
+      nodes={nodes}
+      onNodesUpdate={(data) => {
+        save(data);
+        setNodes(data);
+      }}
+    />
+  );
+};

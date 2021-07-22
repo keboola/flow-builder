@@ -1,0 +1,46 @@
+.graph-container {
+  display: block;
+  box-sizing: content-box;
+  width: 100%;
+  height: 100%;
+}
+
+.graph-container * {
+  box-sizing: content-box;
+  // https://stackoverflow.com/a/4407335/11953579
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+}
+
+.graph-container > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.graph-container * {
+  position: absolute;
+}
+
+.graph-node {
+  position: absolute;
+  background-color: #cccccc;
+  cursor: move;
+}
+
+.graph-node.ghost {
+  background-color: #000000;
+  opacity: 0.1;
+}
+
+.graph-node > .io {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 100%;
+  background-color: red;
+  transform: translate(-50%, -50%);
+}
