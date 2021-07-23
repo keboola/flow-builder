@@ -10,9 +10,11 @@ $ npm install && npm start
 
 - [ ] add/remove edges
 - [ ] add/remove nodes
+- [ ] custom node content
+- [ ] style customization (border, bg, padding?)
+- [ ] grouping
+- [ ] nesting flows
 - [ ] bezier curve paths (2 control points)
-- [ ] allow emplacing custom content into nodes
   - How should node sizing work in this case?
-- [ ] allow further customizing style
 - [ ] memoize path calculation
 - [ ] separate x/y rounding mode dependant on initial node quadrant
