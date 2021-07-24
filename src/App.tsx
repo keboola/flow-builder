@@ -6,10 +6,10 @@ const storageKey = "nodeData";
 
 const defaultData: GraphData = {
   nodes: [
-    { id: "a", pos: [10 + 3, 1], content: <span>Test</span> },
-    { id: "b", pos: [10 + 1, 4], content: <span>Test</span> },
-    { id: "c", pos: [10 + 5, 4], content: <span>Test</span> },
-    { id: "d", pos: [10 + 3, 7], content: <span>Test</span> }
+    { id: "a", pos: [4, 1], content: <span>flow-builder</span> },
+    { id: "b", pos: [1, 4], content: <span>flow-builder</span> },
+    { id: "c", pos: [7, 4], content: <span>flow-builder</span> },
+    { id: "d", pos: [4, 7], content: <span>flow-builder</span> }
   ],
   edges: [
     { from: "a", to: "b" }
