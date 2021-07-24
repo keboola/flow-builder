@@ -1,34 +1,40 @@
 import React, { useState } from "react";
-import Graph, { NodeData } from "./Graph";
+import Graph from "./Graph";
+import type { GraphData } from "./data";
 
 const storageKey = "nodeData";
 
-function load(): NodeData[] {
+const defaultData: GraphData = {
+  nodes: [
+    { id: "a", pos: [10 + 3, 1], content: <span>Test</span> },
+    { id: "b", pos: [10 + 1, 4], content: <span>Test</span> },
+    { id: "c", pos: [10 + 5, 4], content: <span>Test</span> },
+    { id: "d", pos: [10 + 3, 7], content: <span>Test</span> }
+  ],
+  edges: [
+    { from: "a", to: "b" }
+  ]
+};
+
+function load(): GraphData {
   const nodeData = localStorage.getItem(storageKey);
-  if (nodeData) {
-    return JSON.parse(nodeData);
-  } else {
-    return [
-      { id: "a", pos: [3, 1], size: [2, 2], edges: ["b", "c"] },
-      { id: "b", pos: [1, 4], size: [2, 2], edges: ["d"] },
-      { id: "c", pos: [5, 4], size: [2, 2], edges: ["d"] },
-      { id: "d", pos: [3, 7], size: [2, 2] }
-    ];
-  }
+  return nodeData ? JSON.parse(nodeData) : defaultData;
 }
 
-function save(nodeData: NodeData[]) {
-  localStorage.setItem(storageKey, JSON.stringify(nodeData));
+function save(data: GraphData) {
+  localStorage.setItem(storageKey, JSON.stringify(data));
 }
 
 export default () => {
-  const [nodes, setNodes] = useState(load());
+  const [data, setData] = useState(load());
   return (
     <Graph
-      nodes={nodes}
-      onNodesUpdate={(data) => {
-        save(data);
-        setNodes(data);
+      id="graph"
+      cellSize={25}
+      data={data}
+      onUpdate={(data) => {
+        //save(data);
+        setData(data);
       }}
     />
   );
