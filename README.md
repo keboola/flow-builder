@@ -4,8 +4,6 @@
 $ npm install && npm start
 ```
 
-![demo](./demo.gif)
-
 ### TODO
 
 - [x] Render nodes
@@ -59,4 +57,5 @@ $ npm install && npm start
     - This ties into making the `Graph` fully manage its data, because then it can also create hashmaps for more easily accessing nodes/edges/etc.
 - Consider not using React at all, because it's not actually being utilised in any meaningful way
   - `setState` is asynchronous and far too slow for interactivity
+  - the library is going to have to bundle its runtime or require `React` as a peer dependency, which sucks for bundle size or maintenance reasons
   - `lit-html`, `svelte` or just vanilla could better serve the purposes of this library
