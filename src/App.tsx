@@ -4,38 +4,43 @@ import type { GraphData } from "./data";
 
 const storageKey = "nodeData";
 
-const defaultData: GraphData = {
-  nodes: [
-    { id: "a", pos: [4, 1], content: <span>flow-builder</span> },
-    { id: "b", pos: [1, 4], content: <span>flow-builder</span> },
-    { id: "c", pos: [7, 4], content: <span>flow-builder</span> },
-    { id: "d", pos: [4, 7], content: <span>flow-builder</span> }
-  ],
-  edges: [
-    { from: "a", to: "b" }
-  ]
-};
-
-function load(): GraphData {
-  const nodeData = localStorage.getItem(storageKey);
-  return nodeData ? JSON.parse(nodeData) : defaultData;
-}
-
-function save(data: GraphData) {
-  localStorage.setItem(storageKey, JSON.stringify(data));
+const Test = (props: {/*  onClick: (evt: React.MouseEvent) => void  */ }) => {
+  return (
+    <div className="node-content-test">
+      {/* <button {...props} className="remove-node">x</button> */}
+      flow-builder
+    </div>
+  );
 }
 
 export default () => {
-  const [data, setData] = useState(load());
+  const [data, setData] = useState({
+    nodes: [
+      { type: "node", id: "a", pos: [7, 1], content: <Test /> },
+      { type: "node", id: "b", pos: [1, 7], content: <Test /> },
+      { type: "node", id: "c", pos: [13, 7], content: <Test /> },
+      { type: "node", id: "d", pos: [7, 13], content: <Test /> },
+      {
+        type: "group", id: "e+f+g", pos: [3, 20], nodes: [
+          { id: "e", content: <Test /> },
+          { id: "f", content: <Test /> },
+          { id: "g", content: <Test /> },
+        ]
+      },
+    ],
+    edges: [
+      { from: "a", to: "b" }
+    ]
+  } as GraphData);
   return (
-    <Graph
-      id="graph"
-      cellSize={25}
-      data={data}
-      onUpdate={(data) => {
-        //save(data);
-        setData(data);
-      }}
-    />
+    <>
+      {/* <button className="add-node">+</button> */}
+      <Graph
+        id="graph"
+        cellSize={25}
+        data={data}
+        onUpdate={newData => setData(newData)}
+      />
+    </>
   );
 };

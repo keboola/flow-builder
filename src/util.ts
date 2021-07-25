@@ -1,21 +1,3 @@
-const nodeParts = ["container", "input", "output"] as const;
-function isNodePart(value: any): value is NodePart {
-  return nodeParts.includes(value);
-}
-export type NodePart = typeof nodeParts[number];
-export const nodeId = (node: string, ghost: boolean, part: NodePart): string => {
-  return `node:${ghost ? "ghost:" : "real:"}${node}:${part}`;
-};
-
-nodeId.parse = (value: string): { id: string; ghost: boolean; part: NodePart } | null => {
-  const components = value.split(":");
-  if (components.length !== 4) return null;
-  const [prefix, mode, id, part] = components;
-  if (prefix !== "node" || !isNodePart(part)) return null;
-  const ghost = mode === "ghost";
-  return { id, ghost, part };
-};
-
 export const calculatePath = (start: [number, number], end: [number, number]) =>
   `M ${start[0]} ${start[1]} L ${end[0]} ${end[1]}`;
 
@@ -55,7 +37,33 @@ export const distance = (a: [number, number], b: [number, number]) => {
   return Math.sqrt(dx * dx + dy * dy);
 };
 
-export const bounds = (id: string) => document.getElementById(id)?.getBoundingClientRect();
+export const bounds = (id: string, containerId?: string): DOMRect | null => {
+  const clientRect = document.getElementById(id)?.getBoundingClientRect();
+  if (clientRect) {
+    if (containerId) {
+      const containerRect = document.getElementById(containerId)?.getBoundingClientRect();
+      if (containerRect) {
+        return new DOMRect(
+          clientRect.x - containerRect.x,
+          clientRect.y - containerRect.y,
+          clientRect.width,
+          clientRect.height
+        );
+      }
+    } else {
+      return clientRect;
+    }
+  }
+  return null;
+};
+
+export const toContainerRelativePos = (
+  containerId: string,
+  pos: [number, number]
+): [number, number] => {
+  const containerRect = document.getElementById(containerId)!.getBoundingClientRect();
+  return [pos[0] - containerRect.left, pos[1] - containerRect.top];
+};
 
 export const clamp = (v: number, min: number, max: number) => {
   if (v > max) return max;
@@ -65,3 +73,58 @@ export const clamp = (v: number, min: number, max: number) => {
 
 export const snap = (v: number, cell: number) => Math.round(v / cell) * cell;
 export const toGrid = (v: number, cell: number) => Math.round(v / cell);
+
+export const classes = (v: Record<string, any>) => {
+  const out = [];
+  for (const [name, cond] of Object.entries(v)) {
+    if (!!cond) out.push(name);
+  }
+  return out.join(" ");
+};
+
+export const isNodeNested = (el: HTMLElement) => el.classList.contains("nested");
+export const getNodeType = (el: HTMLElement) => el.dataset.type as "node" | "group" | undefined;
+export const isNodeGroup = (el: HTMLElement) => el.dataset.type === "group";
+export const getParentId = (el: HTMLElement) => el.dataset.parent;
+
+export const remove = <T>(array: T[], predicate: (value: T) => boolean): T | null => {
+  let removed: T | null = null;
+  for (let i = 0, len = array.length; i < len; ++i) {
+    if (removed) array[i - 1] = array[i];
+    else if (predicate(array[i])) removed = array[i];
+  }
+  if (removed) array.length -= 1;
+  return removed;
+};
+
+const nodeKinds = ["node", "input", "output"] as const;
+export type NodeKind = typeof nodeKinds[number];
+const isNodeKind = (v: any): v is NodeKind => nodeKinds.includes(v);
+
+export interface NodeInfo {
+  type: NodeKind;
+  id: string;
+}
+
+export const Id = {
+  node(id: string, ghost = false) {
+    let out = `node:${id}`;
+    if (ghost) out += ":ghost";
+    return out;
+  },
+  input(id: string) {
+    return `input:${id}`;
+  },
+  output(id: string) {
+    return `output:${id}`;
+  },
+  parse(nid: string): NodeInfo | null {
+    const [type, id] = nid.split(":");
+    if (type && id && isNodeKind(type))
+      return {
+        type,
+        id
+      };
+    else return null;
+  }
+} as const;

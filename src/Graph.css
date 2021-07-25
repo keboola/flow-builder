@@ -9,6 +9,7 @@ div#root {
 }
 
 .graph-container {
+  position: relative;
   display: block;
   box-sizing: content-box;
   width: 100%;
@@ -39,6 +40,9 @@ div#root {
   background-color: #cccccc;
   cursor: move;
 }
+.graph-node.nested {
+  position: static;
+}
 .graph-node.ghost {
   background-color: #000000;
   opacity: 0.1;
@@ -49,7 +53,7 @@ div#root {
 
 .graph-node-content {
   --draggable-area: 10px;
-  display: inline-block;
+  display: inline-flex;
   margin: var(--draggable-area);
   cursor: default;
   background-color: white;
@@ -102,7 +106,35 @@ div#root {
   pointer-events: all;
 }
 
+/*********** temporary ***********/
 .node-content-test {
   width: 100px;
-  height: 40px;
+  height: 80px;
+}
+button.add-node {
+  padding: 0;
+  margin: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 100%;
+  border-color: black;
+  background-color: #ffffff;
+  box-shadow: 0 0 3px 0.2px green;
+}
+button.add-node:hover {
+  background-color: #bbffbb;
+}
+button.remove-node {
+  float: right;
+  padding: 0;
+  margin: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 100%;
+  border-color: black;
+  background-color: #ffffff;
+  box-shadow: 0 0 3px 0.2px red;
+}
+button.remove-node:hover {
+  background-color: #ffbbbb;
 }

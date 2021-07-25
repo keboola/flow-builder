@@ -2,8 +2,8 @@ import React from "react";
 import "./Graph.css";
 import Node from "./Node";
 import Edge from "./Edge";
-import { clamp, distance, calculatePath, intersects, nodeId, NodePart, bounds, snap, toGrid } from "./util";
-import { GraphData, NodeData } from "./data";
+import * as util from "./util";
+import { GraphData, GroupNode, NodeData, SimpleNode } from "./data";
 
 type Props = {
   id: string;
@@ -16,7 +16,7 @@ type State = {
   width: number;
   height: number;
   cellSize: number;
-  selectedNodeId: string | null;
+  selectedNodeId?: string;
 };
 export default class Graph extends React.Component<Props, State> {
   private ghostNode: {
@@ -24,22 +24,23 @@ export default class Graph extends React.Component<Props, State> {
     ref: HTMLDivElement | null,
     initialOffset: [number, number],
     gridPos: [number, number],
+    group: string | null
   };
   private ghostEdge: {
     el: JSX.Element | null,
     ref: SVGPathElement | null,
     start: [number, number],
-    from: number,
-    to: number,
-    previousTo: number,
+    from: string,
+    to: string,
+    previousTo: string,
   };
   private drag: {
-    node: NodeData | null,
-    nodeIndex: number,
-    part: NodePart,
+    node: HTMLElement | null,
+    type: util.NodeKind,
     start: [number, number],
   };
   private dragging: boolean;
+  private recalculatePathsNextUpdate: boolean;
 
   constructor(props: typeof Graph.prototype.props) {
     super(props);
@@ -47,31 +48,32 @@ export default class Graph extends React.Component<Props, State> {
       width: 0,
       height: 0,
       cellSize: props.cellSize ?? 25,
-      selectedNodeId: null,
     };
 
     this.ghostNode = {
       el: null,
       ref: null,
       initialOffset: [0, 0],
-      gridPos: [0, 0]
+      gridPos: [0, 0],
+      group: null
     };
     this.ghostEdge = {
       el: null,
       ref: null,
       start: [0, 0],
-      from: -1,
-      to: -1,
-      previousTo: -1,
+      from: "",
+      to: "",
+      previousTo: "",
     };
     this.drag = {
       node: null,
-      nodeIndex: -1,
-      part: "container",
+      type: "node",
       start: [0, 0]
     };
     this.dragging = false;
+    this.recalculatePathsNextUpdate = false;
 
+    // TODO: maybe also validate that each node id is unique
     // edge validation
     for (const edges of this.props.data.edges) {
       let from: NodeData | null = null;
@@ -93,7 +95,18 @@ export default class Graph extends React.Component<Props, State> {
     window.addEventListener("mousemove", this.handleMouseMove, false);
     window.addEventListener("mouseup", this.handleMouseUp, false);
 
+    // this is to force re-calculate edge paths after mounting,
+    // because their positions are based on the node positions/sizes,
+    // which aren't available during the initial render
     this.forceUpdate();
+  }
+
+  componentDidUpdate() {
+    // same reasoning as in `componentDidMount`
+    if (this.recalculatePathsNextUpdate) {
+      this.forceUpdate();
+      this.recalculatePathsNextUpdate = false;
+    }
   }
 
   componentWillUnmount() {
@@ -115,8 +128,8 @@ export default class Graph extends React.Component<Props, State> {
         if (from && to) break;
       }
       if (!from || !to) continue;
-      const fromBounds = bounds(nodeId(from.id, false, "container"));
-      const toBounds = bounds(nodeId(to.id, false, "container"));
+      const fromBounds = util.bounds(util.Id.node(from.id, false), this.props.id);
+      const toBounds = util.bounds(util.Id.node(to.id, false), this.props.id);
       if (!fromBounds || !toBounds) continue;
       const start = [
         from.pos[0] * this.state.cellSize + fromBounds.width / 2,
@@ -141,16 +154,21 @@ export default class Graph extends React.Component<Props, State> {
           {...paths}
           {this.ghostEdge.el}
         </svg>
-        {...this.props.data.nodes.map((node, index) => (
+        {...this.props.data.nodes.map(node => (
           <Node
-            key={node.id}
             id={node.id}
-            position={[node.pos[0] * this.state.cellSize, node.pos[1] * this.state.cellSize]}
-            hasInput={references.has(node.id) || this.ghostEdge.to === index}
-            selected={node.id === this.state.selectedNodeId}
-          >
-            {node.content}
-          </Node>
+            containerId={this.props.id}
+            pos={node.pos}
+            content={node.type === "node" ? node.content : undefined}
+            nested={node.type === "group" ? node.nodes : undefined}
+            key={node.id}
+            cellSize={this.state.cellSize}
+            hasInput={
+              references.has(node.id) ||
+              this.ghostEdge.to === node.id
+            }
+            selected={this.state.selectedNodeId}
+          />
         ))}
         {this.ghostNode.el}
       </div>
@@ -161,132 +179,208 @@ export default class Graph extends React.Component<Props, State> {
     const targetEl = evt.target as Element;
     if (!targetEl) return;
 
-    const info = nodeId.parse(targetEl.id);
+    const info = util.Id.parse(targetEl.id);
     if (!info) return;
 
-    const nodeIndex = this.props.data.nodes.findIndex((node) => node.id === info.id);
-    const node = this.props.data.nodes[nodeIndex];
+    const node = document.getElementById(util.Id.node(info.id, false));
     if (!node) return;
-
     evt.stopPropagation();
 
+    const containerBounds = util.bounds(this.props.id, this.props.id)!;
+
     this.drag.node = node;
-    this.drag.nodeIndex = nodeIndex;
-    this.drag.part = info.part;
-    this.drag.start[0] = evt.clientX;
-    this.drag.start[1] = evt.clientY;
+    this.drag.type = info.type;
+    this.drag.start[0] = evt.clientX + containerBounds.left;
+    this.drag.start[1] = evt.clientY + containerBounds.top;
   };
 
   private handleMouseMove = (evt: MouseEvent) => {
-    if (
-      !this.dragging &&
-      this.drag.node &&
-      distance([evt.clientX, evt.clientY], this.drag.start) > 2
-    ) {
-      this.dragging = true;
-      if (this.drag.part === "container") {
-        this.setState({ selectedNodeId: this.drag.node.id });
-        this.ghostNode.gridPos = [
-          this.drag.node.pos[0],
-          this.drag.node.pos[1]
-        ];
-        this.ghostNode.initialOffset = [
-          this.drag.start[0] - this.drag.node.pos[0] * this.state.cellSize,
-          this.drag.start[1] - this.drag.node.pos[1] * this.state.cellSize
-        ];
-        this.ghostNode.el = (
-          <Node
-            id={this.drag.node.id}
-            ref={v => this.ghostNode.ref = v}
-            ghost
-            position={[
-              this.drag.node.pos[0] * this.state.cellSize,
-              this.drag.node.pos[1] * this.state.cellSize
-            ]}
-          />
-        );
-      } else if (this.drag.part === "output") {
-        const nodeBounds = bounds(nodeId(this.drag.node.id, false, "container"))!;
-        this.ghostEdge.start = [
-          this.drag.node.pos[0] * this.state.cellSize + nodeBounds.width / 2,
-          this.drag.node.pos[1] * this.state.cellSize + nodeBounds.height
-        ];
-        this.ghostEdge.from = this.drag.nodeIndex;
-        this.ghostEdge.el = (
-          <Edge
-            ref={v => this.ghostEdge.ref = v}
-            start={this.ghostEdge.start}
-            end={[
-              this.drag.start[0],
-              this.drag.start[1]
-            ]}
-          />
-        );
-      }
-
-      this.forceUpdate();
-    } else {
-      if (this.ghostNode.ref) {
-        const containerBounds = bounds(this.props.id)!;
-        this.ghostNode.gridPos[0] = toGrid(clamp(
-          evt.clientX - this.ghostNode.initialOffset[0],
-          containerBounds.x + this.state.cellSize,
-          containerBounds.x + containerBounds.width - this.state.cellSize * 2
-        ), this.state.cellSize);
-        this.ghostNode.gridPos[1] = toGrid(clamp(
-          evt.clientY - this.ghostNode.initialOffset[1],
-          containerBounds.y + this.state.cellSize,
-          containerBounds.y + containerBounds.height - this.state.cellSize * 2
-        ), this.state.cellSize);
-        this.ghostNode.ref.style.left = `${this.ghostNode.gridPos[0] * this.state.cellSize}px`;
-        this.ghostNode.ref.style.top = `${this.ghostNode.gridPos[1] * this.state.cellSize}px`;
-      } else if (this.ghostEdge.ref) {
-        const mouse: [number, number] = [evt.clientX, evt.clientY];
-        this.ghostEdge.previousTo = this.ghostEdge.to;
-        this.ghostEdge.to = this.props.data.nodes.findIndex(node => {
-          const nodeBounds = bounds(nodeId(node.id, false, "container"))!;
-          return intersects.aabb(
-            mouse,
-            {
-              pos: [node.pos[0] * this.state.cellSize, node.pos[1] * this.state.cellSize],
-              size: [nodeBounds.width, nodeBounds.height]
-            }
+    const mousePos: [number, number] = [evt.clientX, evt.clientY];
+    if (this.drag.node) {
+      if (
+        !this.dragging &&
+        util.distance(mousePos, this.drag.start) > 2
+      ) {
+        const targetNode = this.drag.node;
+        const targetNodeRect = util.bounds(targetNode.id, this.props.id)!;
+        const targetNodeId = util.Id.parse(targetNode.id)!.id;
+        this.dragging = true;
+        if (this.drag.type === "node") {
+          this.setState({ selectedNodeId: targetNode.id });
+          this.ghostNode.gridPos = [
+            targetNodeRect.left,
+            targetNodeRect.top
+          ];
+          this.ghostNode.initialOffset = [
+            this.drag.start[0] - targetNodeRect.left,
+            this.drag.start[1] - targetNodeRect.top
+          ];
+          this.ghostNode.el = (
+            <Node
+              containerId={this.props.id}
+              id={targetNodeId}
+              pos={[targetNodeRect.left, targetNodeRect.top]}
+              nested={util.getNodeType(targetNode) === "group" ? [] : undefined}
+              ghost
+              containerRef={v => this.ghostNode.ref = v}
+              key={targetNode.id}
+              cellSize={this.state.cellSize}
+            />
           );
-        });
-
-        const toNode = this.props.data.nodes[this.ghostEdge.to];
-        const path = this.ghostEdge.to === -1
-          ? calculatePath(this.ghostEdge.start, mouse)
-          : calculatePath(this.ghostEdge.start, [
-            toNode.pos[0] * this.state.cellSize + bounds(nodeId(toNode.id, false, "container"))!.width / 2,
-            toNode.pos[1] * this.state.cellSize
-          ]);
-        this.ghostEdge.ref.setAttribute("d", path);
-        if (this.ghostEdge.to !== this.ghostEdge.previousTo) {
-          this.forceUpdate();
+        } else if (this.drag.type === "output") {
+          this.ghostEdge.start = [
+            targetNodeRect.left + targetNodeRect.width / 2,
+            targetNodeRect.top + targetNodeRect.height
+          ];
+          this.ghostEdge.from = targetNodeId;
+          this.ghostEdge.el = (
+            <Edge
+              ref={v => this.ghostEdge.ref = v}
+              start={this.ghostEdge.start}
+              end={[
+                this.drag.start[0],
+                this.drag.start[1]
+              ]}
+            />
+          );
         }
-      } else {
 
+        this.forceUpdate();
+      } else {
+        if (this.ghostNode.ref) {
+          const containerBounds = util.bounds(this.props.id)!;
+          // TODO: clamping should be based on the bounds of the node itself
+          this.ghostNode.gridPos[0] = util.toGrid(util.clamp(
+            mousePos[0] - this.ghostNode.initialOffset[0],
+            containerBounds.x + this.state.cellSize,
+            containerBounds.x + containerBounds.width - this.state.cellSize * 2
+          ), this.state.cellSize);
+          this.ghostNode.gridPos[1] = util.toGrid(util.clamp(
+            mousePos[1] - this.ghostNode.initialOffset[1],
+            containerBounds.y + this.state.cellSize,
+            containerBounds.y + containerBounds.height - this.state.cellSize * 2
+          ), this.state.cellSize);
+          this.ghostNode.ref.style.left = `${this.ghostNode.gridPos[0] * this.state.cellSize}px`;
+          this.ghostNode.ref.style.top = `${this.ghostNode.gridPos[1] * this.state.cellSize}px`;
+          const intersecting = this.props.data.nodes.find(node => {
+            const nodeBounds = util.bounds(util.Id.node(node.id, false))!;
+            return util.intersects.aabb(
+              mousePos,
+              {
+                pos: [nodeBounds.left, nodeBounds.top],
+                size: [nodeBounds.width, nodeBounds.height]
+              }
+            );
+          });
+          if (intersecting && util.Id.node(intersecting.id) !== this.drag.node.id) {
+            console.log("intersecting", intersecting.id);
+            this.ghostNode.group = intersecting.id;
+          } else {
+            this.ghostNode.group = null;
+          }
+        } else if (this.ghostEdge.ref) {
+          this.ghostEdge.previousTo = this.ghostEdge.to;
+          const intersecting = this.props.data.nodes.find(node => {
+            const nodeBounds = util.bounds(util.Id.node(node.id, false))!;
+            return util.intersects.aabb(
+              mousePos,
+              {
+                pos: [nodeBounds.left, nodeBounds.top],
+                size: [nodeBounds.width, nodeBounds.height]
+              }
+            );
+          });
+
+          let path: string;
+          if (intersecting) {
+            this.ghostEdge.to = intersecting.id;
+            const toElementRect = util.bounds(util.Id.node(this.ghostEdge.to), this.props.id)!;
+            path = util.calculatePath(this.ghostEdge.start, [
+              toElementRect.left + toElementRect.width / 2,
+              toElementRect.top
+            ]);
+          } else {
+            this.ghostEdge.to = "";
+            path = util.calculatePath(this.ghostEdge.start, util.toContainerRelativePos(this.props.id, mousePos));
+          }
+          this.ghostEdge.ref.setAttribute("d", path);
+          if (this.ghostEdge.to !== this.ghostEdge.previousTo) {
+            this.forceUpdate();
+          }
+        }
       }
     }
   }
 
   private handleMouseUp = (evt: MouseEvent) => {
-    if (this.dragging) {
+    const targetNode = this.drag.node;
+    if (this.dragging && targetNode) {
       if (this.ghostNode.ref) {
         evt.stopPropagation();
 
         const gridPos = this.ghostNode.gridPos;
-        const info = nodeId.parse(this.ghostNode.ref.id)!;
+        const info = util.Id.parse(this.ghostNode.ref.id)!;
+        const group = this.ghostNode.group;
         this.updateNodes((data) => {
-          const nodeIndex = data.nodes.findIndex(node => node.id === info.id);
-          if (
-            this.props.data.nodes[nodeIndex].pos[0] === gridPos[0] &&
-            this.props.data.nodes[nodeIndex].pos[1] === gridPos[1]
-          ) {
-            return false;
+          if (util.isNodeNested(targetNode)) {
+            const parentId = util.getParentId(targetNode)!;
+            const parentNode = data.nodes.find(node => node.id === parentId) as GroupNode;
+            const removed = util.remove(parentNode.nodes, node => node.id === info.id)!;
+            data.nodes.push({
+              ...removed,
+              type: "node",
+              pos: [gridPos[0], gridPos[1]],
+            });
+            if (parentNode.nodes.length === 1) {
+              util.remove(data.nodes, node => node.id === parentNode.id);
+              const remaining = parentNode.nodes[0];
+              data.edges.forEach(edge => {
+                if (edge.from === parentNode.id) edge.from = remaining.id;
+                else if (edge.to === parentNode.id) edge.to = remaining.id;
+              });
+              data.nodes.push({
+                ...remaining,
+                type: "node",
+                pos: [parentNode.pos[0], parentNode.pos[1]],
+              });
+            } else {
+              parentNode.id = parentNode.nodes.map(node => node.id).join("+");
+            }
+          } else {
+            if (group && util.getNodeType(targetNode) !== "group") {
+              const removed = util.remove(data.nodes, node => node.id === info.id)! as SimpleNode;
+              data.edges = data.edges.filter(edge => edge.from !== info.id && edge.to !== info.id);
+              const target = data.nodes.find(node => node.id === group)!;
+              if (target.type === "group") {
+                target.nodes.push({
+                  id: removed.id,
+                  content: removed.content
+                });
+                target.id = target.nodes.map(node => node.id).join("+");
+              } else {
+                util.remove(data.nodes, node => node.id === target.id);
+                data.edges = data.edges.filter(edge => edge.from !== target.id && edge.to !== target.id);
+                data.nodes.push({
+                  id: `${removed.id}+${target.id}`,
+                  type: "group",
+                  pos: [target.pos[0], target.pos[1]],
+                  nodes: [
+                    { id: removed.id, content: removed.content },
+                    { id: target.id, content: target.content }
+                  ]
+                })
+              }
+            } else {
+              const nodeIndex = data.nodes.findIndex(node => node.id === info.id);
+              if (
+                this.props.data.nodes[nodeIndex].pos[0] === gridPos[0] &&
+                this.props.data.nodes[nodeIndex].pos[1] === gridPos[1]
+              ) {
+                return false;
+              }
+              data.nodes[nodeIndex].pos = [gridPos[0], gridPos[1]];
+            }
           }
-          data.nodes[nodeIndex].pos = [gridPos[0], gridPos[1]];
         });
 
         this.ghostNode.el = null;
@@ -295,13 +389,13 @@ export default class Graph extends React.Component<Props, State> {
       else if (this.ghostEdge.ref) {
         evt.stopPropagation();
 
-        const fromIdx = this.ghostEdge.from;
-        const toIdx = this.ghostEdge.to;
+        const fromId = this.ghostEdge.from;
+        const toId = this.ghostEdge.to;
         this.updateNodes((data) => {
-          const from = data.nodes[fromIdx];
-          const to = data.nodes[toIdx];
+          const from = data.nodes.find(node => node.id === fromId);
+          const to = data.nodes.find(node => node.id === toId);
           if (
-            !to || (
+            !from || !to || (
               data.edges.length !== 0 &&
               data.edges.find(edge => edge.from === from.id && edge.to === to.id)
             )
@@ -317,20 +411,22 @@ export default class Graph extends React.Component<Props, State> {
       }
       this.forceUpdate();
     } else {
-      this.setState({ selectedNodeId: this.drag.node?.id ?? null });
+      this.setState({
+        selectedNodeId: this.drag.node
+          ? util.Id.parse(this.drag.node.id)!.id
+          : undefined
+      });
     }
 
     this.dragging = false;
     this.drag.node = null;
-    this.drag.nodeIndex = -1;
-    this.drag.start[0] = 0;
-    this.drag.start[1] = 0;
   };
 
   private updateNodes(callback: (data: GraphData) => void | false) {
     setTimeout(() => {
       const data = GraphData.copy(this.props.data);
       if (callback(data) === false) return;
+      this.recalculatePathsNextUpdate = true;
       this.props.onUpdate(data);
     });
   }
