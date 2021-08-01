@@ -1,39 +1,6 @@
 import React from "react";
 import './Graph.css';
-import { $, validateChildren, v2, Vector2, path } from "./util";
-
-const EDGE_REGEX = /(.+)->(.+)/;
-
-interface ProcessedEdge {
-  edge: Graph.Edge,
-  d: string
-}
-const processEdge = (
-  container: ParentNode,
-  edge: Graph.Edge,
-  offset: Vector2
-): ProcessedEdge | null => {
-  const info = edge.match(EDGE_REGEX);
-  if (!info) {
-    console.warn(`Invalid edge '${edge}', the format should be \`\${source}.\${output}->\${destination}.\${input}`);
-    return null;
-  }
-  const [src, dst] = info.slice(1);
-  const from = $`div[data-id='${src}']`(container);
-  const to = $`div[data-id='${dst}']`(container);
-  if (!from || !to) {
-    const [which, io] = from ? ["destination", "input"] : ["source", "input"];
-    console.warn(`Invalid edge '${edge}', ${which} node does not exist or has no such ${io}`);
-    return null;
-  }
-  if (from.parentElement!.dataset.type === "group" || to.parentElement!.dataset.type === "group") {
-    const which = from.parentElement!.dataset.type === "group" ? "source" : "destination";
-    console.warn(`Invalid edge '${edge}', ${which} node is inside a group`);
-  }
-  const srcMid = v2.rectMid(from.getBoundingClientRect()).subtract(offset);
-  const dstMid = v2.rectMid(to.getBoundingClientRect()).subtract(offset);
-  return { edge, d: path.bezier(srcMid, dstMid) };
-}
+import { validateChildren, v2, processEdge, ProcessedEdge } from "./util";
 
 export const Graph = ({ edges, children }: Graph.Props) => {
   if (!children) return null;
