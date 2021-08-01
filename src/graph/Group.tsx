@@ -20,7 +20,7 @@ export const Group = (props: Group.Props) => {
     <GraphContext.Provider value={"Group"}>
       <div
         data-type="group"
-        data-id={props.name}
+        data-name={props.name}
         className={classes({
           "flow-graph--group": true,
           "flow-graph--align-x": !!props["align-x"],
@@ -31,11 +31,15 @@ export const Group = (props: Group.Props) => {
         <div className="flow-graph--content">
           {children}
         </div>
-        <div className="flow-graph--io input">
-          {inputs.map(name => <div key={name} data-id={`${props.name}.${name}`} />)}
+        <div className="flow-graph--io flow-graph--io-top">
+          {inputs.map(name => (
+            <div className="flow-graph--io-port" key={name} data-name={`${props.name}.${name}`} />
+          ))}
         </div>
-        <div className="flow-graph--io output">
-          {outputs.map(name => <div key={name} data-id={`${props.name}.${name}`} />)}
+        <div className="flow-graph--io flow-graph--io-bottom">
+          {outputs.map(name => (
+            <div className="flow-graph--io-port" key={name} data-name={`${props.name}.${name}`} />
+          ))}
         </div>
       </div>
     </GraphContext.Provider>

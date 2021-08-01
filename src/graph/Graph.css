@@ -16,7 +16,7 @@
   position: absolute;
   display: inline-flex;
   flex-direction: row;
-  background-color: grey;
+  background-color: transparent;
 }
 
 .flow-graph--align-x {
@@ -40,7 +40,7 @@
   position: absolute;
   display: inline-flex;
   flex-direction: row;
-  background-color: cyan;
+  background-color: transparent;
 }
 
 .flow-graph--group .flow-graph--node .flow-graph--io {
@@ -63,18 +63,17 @@
   background-color: transparent;
 }
 
-.flow-graph--io.input {
+.flow-graph--io.flow-graph--io-top {
   top: -8px;
   bottom: auto;
 }
 
-.flow-graph--io.output {
+.flow-graph--io.flow-graph--io-bottom {
   top: auto;
   bottom: -8px;
 }
 
-.flow-graph--io.input > div,
-.flow-graph--io.output > div {
+.flow-graph--io-port {
   position: static;
   margin: 0;
   width: 16px;
@@ -82,4 +81,9 @@
   border-radius: 100%;
   background-color: red;
   pointer-events: all;
+}
+
+.flow-graph--svg path {
+  stroke: black;
+  fill: transparent;
 }

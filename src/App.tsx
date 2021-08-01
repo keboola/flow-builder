@@ -12,7 +12,34 @@ const App = () => {
       height: "100%"
     }}>
       <style>
-        {`div.content { width: 50px; height: 50px; text-align: center; line-height: 50px; }`}
+        {`
+        .content {
+          width: 4em;
+          height: 3em;
+          text-align: center;
+          line-height: 3em;
+        }
+        .flow-graph--node {
+          border: 1px solid rgb(223, 225, 229);
+          border-radius: 8px;
+          box-shadow: 2px 2px 2px 1px rgba(245, 245, 245, 100);
+        }
+        .flow-graph--group {
+          border: 1px solid rgb(223, 225, 229);
+          border-radius: 8px;
+          box-shadow: 2px 2px 4px 2px rgba(245, 245, 245, 200);
+        }
+        .flow-graph--group .flow-graph--node {
+          border: none;
+          box-shadow: none;
+        }
+        .flow-graph--io-port {
+          
+        }
+        .flow-graph--io-port[data-name$="success"] {
+          background-color: green;
+        }
+        `}
       </style>
       <Graph edges={[
         "a.success->b+c+d.run0",
@@ -22,7 +49,7 @@ const App = () => {
           <div className="content">Test</div>
           <Output name="success" />
         </Node>
-        <Node name="f" position={[250, 10]}>
+        <Node align-x name="f" position={[250, 10]}>
           <div className="content">Test</div>
           <Output name="success" />
         </Node>

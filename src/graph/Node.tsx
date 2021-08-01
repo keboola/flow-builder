@@ -20,7 +20,7 @@ export const Node: React.FC<Node.Props> = (props: Node.Props) => {
     <GraphContext.Provider value={"Node"}>
       <div
         data-type="node"
-        data-id={props.name}
+        data-name={props.name}
         className={classes({
           "flow-graph--node": true,
           "flow-graph--align-x": !!props["align-x"],
@@ -31,11 +31,23 @@ export const Node: React.FC<Node.Props> = (props: Node.Props) => {
         <div className="flow-graph--content">
           {children}
         </div>
-        <div className="flow-graph--io input">
-          {parent !== "Group" && inputs.map(name => <div key={name} data-id={`${props.name}.${name}`} />)}
+        <div className="flow-graph--io flow-graph--io-top">
+          {parent !== "Group" && inputs.map(name => (
+            <div
+              className="flow-graph--io-port"
+              key={name}
+              data-name={`${props.name}.${name}`}
+            />
+          ))}
         </div>
-        <div className="flow-graph--io output">
-          {parent !== "Group" && outputs.map(name => <div key={name} data-id={`${props.name}.${name}`} />)}
+        <div className="flow-graph--io flow-graph--io-bottom">
+          {parent !== "Group" && outputs.map(name => (
+            <div
+              className="flow-graph--io-port"
+              key={name}
+              data-name={`${props.name}.${name}`}
+            />
+          ))}
         </div>
       </div>
     </GraphContext.Provider>

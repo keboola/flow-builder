@@ -193,7 +193,6 @@ export const path = {
     const dx = end.x - start.x;
     const dy = end.y - start.y;
     return (
-      "" +
       `M ${start.x} ${start.y} ` +
       `Q ${start.x - dx / 32} ${start.y + dy / 2}, ${mid.x} ${mid.y} ` +
       `T ${end.x} ${end.y}`
@@ -278,8 +277,8 @@ export const processEdge = (
     );
   }
   const [src, dst] = info.slice(1);
-  const from = $`.output > div[data-id='${src}']`(container);
-  const to = $`.input > div[data-id='${dst}']`(container);
+  const from = $`div[data-name='${src}']`(container);
+  const to = $`div[data-name='${dst}']`(container);
   if (!from || !to) {
     const [which, io] = from ? ["destination", "input"] : ["source", "input"];
     throw new Error(`Invalid edge '${edge}', ${which} node does not exist or has no such ${io}`);

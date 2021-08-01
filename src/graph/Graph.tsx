@@ -24,9 +24,15 @@ export const Graph = ({ edges, children }: Graph.Props) => {
   return (
     <GraphContext.Provider value={"Graph"}>
       <div ref={container} data-type="graph" className="flow-graph">
-        <svg>
+        <svg className="flow-graph--svg">
           {paths.map(path => (
-            path && <path key={path.edge} d={path.d} stroke="black" fill="transparent" />
+            path && (
+              <path
+                className="flow-graph--path"
+                key={path.edge}
+                d={path.d}
+              />
+            )
           ))}
         </svg>
         {children}
