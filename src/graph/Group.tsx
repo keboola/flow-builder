@@ -24,8 +24,8 @@ export const Group = (props: Group.Props) => {
         data-id={props.id}
         className={classes({
           "flow-graph--group": true,
-          "align-self-horizontal": !!props["align-x"],
-          "align-self-vertical": !!props["align-y"]
+          "flow-graph--align-x": !!props["align-x"],
+          "flow-graph--align-y": !!props["align-y"]
         })}
         style={pos(props.position)}
       >

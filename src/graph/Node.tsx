@@ -24,8 +24,8 @@ export const Node: React.FC<Node.Props> = (props: Node.Props) => {
         data-id={props.id}
         className={classes({
           "flow-graph--node": true,
-          "align-self-horizontal": !!props["align-x"],
-          "align-self-vertical": !!props["align-y"]
+          "flow-graph--align-x": !!props["align-x"],
+          "flow-graph--align-y": !!props["align-y"]
         })}
         style={props.position ? pos(props.position) : {}}
       >

@@ -19,13 +19,13 @@
   background-color: grey;
 }
 
-.align-self-horizontal {
+.flow-graph--align-x {
   transform: translate(-50%, 0);
 }
-.align-self-vertical {
+.flow-graph--align-y {
   transform: translate(0, -50%);
 }
-.align-self-horizontal.align-self-vertical {
+.flow-graph--align-x.flow-graph--align-y {
   transform: translate(-50%, -50%);
 }
 
