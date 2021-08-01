@@ -81,6 +81,5 @@
   height: 16px;
   border-radius: 100%;
   background-color: red;
-  cursor: crosshair;
   pointer-events: all;
 }

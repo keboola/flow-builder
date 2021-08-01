@@ -20,15 +20,15 @@ const App = () => {
       ]}>
         <Node align-x id="a" position={[50, 10]}>
           <div className="content">Test</div>
-          <Output id="success"></Output>
+          <Output id="success" />
         </Node>
         <Node id="f" position={[250, 10]}>
           <div className="content">Test</div>
-          <Output id="success"></Output>
+          <Output id="success" />
         </Node>
         <Group align-x id="b+c+d" position={[150, 100]}>
-          <Input id="run0"></Input>
-          <Input id="run1"></Input>
+          <Input id="run0" />
+          <Input id="run1" />
           <Node id="b">
             <div className="content">Test</div>
           </Node>
