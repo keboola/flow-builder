@@ -282,7 +282,6 @@ export const processEdge = (
   const to = $`.input > div[data-id='${dst}']`(container);
   if (!from || !to) {
     const [which, io] = from ? ["destination", "input"] : ["source", "input"];
-    return null as any;
     throw new Error(`Invalid edge '${edge}', ${which} node does not exist or has no such ${io}`);
   }
   if (from.parentElement!.dataset.type === "group" || to.parentElement!.dataset.type === "group") {
