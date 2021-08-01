@@ -1,6 +1,7 @@
 import React from "react";
 import { classes, pos, validateChildren, is, removeAll } from "./util";
 import { GraphContext } from "./context";
+import { IO } from "./Io";
 
 export const Node: React.FC<Node.Props> = (props: Node.Props) => {
   if (!props.children) return null;
@@ -13,9 +14,7 @@ export const Node: React.FC<Node.Props> = (props: Node.Props) => {
   // Ensure children of `Node` are never `Graph`, `Group`, or `Node`
   validateChildren("Node", props.children, ["Graph", "Group", "Node"], "exclusive");
 
-  const childArray = React.Children.toArray(props.children);
-  const inputs = removeAll(childArray, child => is(child, "Input")).map(child => (child as any).props.id);
-  const outputs = removeAll(childArray, child => is(child, "Output")).map(child => (child as any).props.id);
+  const { inputs, outputs, remainder: children } = IO.filter(props.children);
 
   return (
     <GraphContext.Provider value={"Node"}>
@@ -30,7 +29,7 @@ export const Node: React.FC<Node.Props> = (props: Node.Props) => {
         style={props.position ? pos(props.position) : {}}
       >
         <div className="flow-graph--content">
-          {childArray}
+          {children}
         </div>
         <div className="flow-graph--io input">
           {parent !== "Group" && inputs.map(name => <div key={name} data-id={`${props.name}.${name}`} />)}
