@@ -1,5 +1,5 @@
 import React from "react";
-import { Graph, Group, Node } from "./graph"
+import { Graph, Group, Node } from "."
 
 // TODO: Edges
 
