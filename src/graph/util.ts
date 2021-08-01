@@ -282,6 +282,7 @@ export const processEdge = (
   const to = $`.input > div[data-id='${dst}']`(container);
   if (!from || !to) {
     const [which, io] = from ? ["destination", "input"] : ["source", "input"];
+    return null as any;
     throw new Error(`Invalid edge '${edge}', ${which} node does not exist or has no such ${io}`);
   }
   if (from.parentElement!.dataset.type === "group" || to.parentElement!.dataset.type === "group") {
@@ -291,4 +292,15 @@ export const processEdge = (
   const srcMid = v2.rectMid(from.getBoundingClientRect()).subtract(offset);
   const dstMid = v2.rectMid(to.getBoundingClientRect()).subtract(offset);
   return { edge, d: path.bezier(srcMid, dstMid) };
+};
+
+export const is = (child: React.ReactNode, name: string) => {
+  if (typeof child === "string" || typeof child === "number") return false;
+  if (Array.isArray(child)) return false;
+  const c = child as any;
+  if ("type" in c) {
+    if (typeof c.type === "string") return c.type === name;
+    if (typeof c.type === "function") return c.type.name === name;
+  }
+  return false;
 };

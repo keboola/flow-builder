@@ -1,5 +1,5 @@
 import React from "react";
-import { Graph, Group, Node } from "./graph"
+import { Graph, Group, Node, Input, Output } from "./graph"
 
 // TODO: Edges
 
@@ -14,10 +14,12 @@ const App = () => {
       <Graph edges={[
         "a.success->b+c+d.run"
       ]}>
-        <Node align-x id="a" position={[50, 10]} outputs={["success"]}>
+        <Node align-x id="a" position={[50, 10]}>
           <span>Test</span>
+          <Output id="success"></Output>
         </Node>
-        <Group align-x id="b+c+d" position={[300, 100]} inputs={["run"]}>
+        <Group align-x id="b+c+d" position={[300, 100]}>
+          <Input id="run"></Input>
           <Node id="b">
             <span>Test</span>
           </Node>
