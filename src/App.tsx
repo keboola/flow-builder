@@ -18,24 +18,24 @@ const App = () => {
         "a.success->b+c+d.run0",
         "f.success->b+c+d.run1",
       ]}>
-        <Node align-x id="a" position={[50, 10]}>
+        <Node align-x name="a" position={[50, 10]}>
           <div className="content">Test</div>
-          <Output id="success" />
+          <Output name="success" />
         </Node>
-        <Node id="f" position={[250, 10]}>
+        <Node name="f" position={[250, 10]}>
           <div className="content">Test</div>
-          <Output id="success" />
+          <Output name="success" />
         </Node>
-        <Group align-x id="b+c+d" position={[150, 100]}>
-          <Input id="run0" />
-          <Input id="run1" />
-          <Node id="b">
+        <Group align-x name="b+c+d" position={[150, 100]}>
+          <Input name="run0" />
+          <Input name="run1" />
+          <Node name="b">
             <div className="content">Test</div>
           </Node>
-          <Node id="c">
+          <Node name="c">
             <div className="content">Test</div>
           </Node>
-          <Node id="d">
+          <Node name="d">
             <div className="content">Test</div>
           </Node>
         </Group>
