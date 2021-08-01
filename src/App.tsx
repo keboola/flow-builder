@@ -1,8 +1,6 @@
 import React from "react";
 import { Graph, Group, Node, Input, Output } from "./graph"
 
-// TODO: Edges
-
 const App = () => {
   return (
     <div style={{
