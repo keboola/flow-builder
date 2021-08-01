@@ -190,10 +190,12 @@ export const path = {
   line: (start: Vector2, end: Vector2) => `M ${start.x} ${start.y} L ${end.x} ${end.y}`,
   bezier: (start: Vector2, end: Vector2) => {
     const mid = v2.pmid(start, end);
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;
     return (
       "" +
       `M ${start.x} ${start.y} ` +
-      `Q ${start.x} ${start.y + (end.y - start.y) / 2}, ${mid.x} ${mid.y} ` +
+      `Q ${start.x - dx / 32} ${start.y + dy / 2}, ${mid.x} ${mid.y} ` +
       `T ${end.x} ${end.y}`
     );
   }
@@ -225,6 +227,11 @@ export const remove = <T>(
 /**
  * Remove from `array` all items for which `predicate` is `true`,
  * returning the removed items, or `null` if not found.
+ *
+ * This is different from `Array.filter` in that it returns the
+ * removed items, instead of the filtered array. It also removes
+ * items for which the predicate is `true`, where as `filter`
+ * preserves items for which the predicate is `true`.
  *
  * ```js
  * const array = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];

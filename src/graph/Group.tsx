@@ -2,6 +2,7 @@ import React from "react";
 import { validateChildren, classes, pos } from "./util";
 
 export const Group = (props: Group.Props) => {
+  console.log(props);
   if (!props.children) return null;
   validateChildren("Group", props.children, ["Node"], "inclusive");
 

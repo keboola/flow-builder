@@ -2,6 +2,7 @@ import React from "react";
 import { validateChildren, classes, pos } from "./util";
 
 export const Node: React.FC<Node.Props> = (props: Node.Props) => {
+  console.log(props);
   if (!props.children) return null;
   validateChildren("Node", props.children, ["Graph", "Group", "Node"], "exclusive");
 

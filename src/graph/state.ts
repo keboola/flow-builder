@@ -1,4 +1,4 @@
-import { Vector2, v2 } from "./vec2";
+import { Vector2, v2 } from "./util";
 
 /**
  * Manual implementation of `drag*` and `click` events.
@@ -37,7 +37,7 @@ class MouseState {
 
   private mdown = (e: MouseEvent) => {
     e.stopPropagation();
-    this.start.set(v2(e.clientX, e.clientY));
+    this.start.set(e.clientX, e.clientY);
 
     this.target = e.target;
   };
