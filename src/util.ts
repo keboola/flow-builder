@@ -119,8 +119,7 @@ export const processEdge = (
 ): ProcessedEdge | null => {
   const info = edge.match(EDGE_REGEX);
   if (!info) {
-    // @ts-ignore
-    /* throw new Error */return console.warn(
+    throw new Error(
       `Invalid edge '${edge}', the format should be \`\${source}.\${output}->\${destination}.\${input}`
     );
   }
@@ -128,14 +127,12 @@ export const processEdge = (
   const from = container.querySelector(`div[data-name='${src}']`);
   const to = container.querySelector(`div[data-name='${dst}']`);
   if (!from || !to) {
-    const [which, io] = from ? ["destination", "input"] : ["source", "input"];
-    // @ts-ignore
-    /* throw new Error */return console.warn(`Invalid edge '${edge}', ${which} node does not exist or has no such ${io}`);
+    const [which, io] = from ? ["destination", "input"] : ["source", "output"];
+    throw new Error(`Invalid edge '${edge}', ${which} node does not exist or has no such ${io}`);
   }
   if (from.parentElement!.dataset.type === "group" || to.parentElement!.dataset.type === "group") {
     const which = from.parentElement!.dataset.type === "group" ? "source" : "destination";
-    // @ts-ignore
-    /* throw new Error */return console.warn(`Invalid edge '${edge}', ${which} node is inside a group`);
+    throw new Error(`Invalid edge '${edge}', ${which} node is inside a group`);
   }
   const srcMid = v2.rectMid(from.getBoundingClientRect()).subtract(offset);
   const dstMid = v2.rectMid(to.getBoundingClientRect()).subtract(offset);
