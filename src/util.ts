@@ -1,130 +1,140 @@
-export const calculatePath = (start: [number, number], end: [number, number]) =>
-  `M ${start[0]} ${start[1]} L ${end[0]} ${end[1]}`;
+import type React from "react";
 
-type AABB = {
-  pos: [number, number];
-  size: [number, number];
-};
-type Line = [[number, number], [number, number]];
-export const intersects = {
-  aabb(point: [number, number], box: AABB) {
-    const pX = point[0];
-    const pY = point[1];
-    const minX = box.pos[0];
-    const minY = box.pos[1];
-    const maxX = box.pos[0] + box.size[0];
-    const maxY = box.pos[1] + box.size[1];
+export class Vector2 {
+  constructor(public x: number, public y: number) {}
 
-    return minX < pX && maxX > pX && minY < pY && maxY > pY;
-  },
-  line(point: [number, number], line: Line, epsilon = 1) {
-    const d1X = point[0] - line[0][0];
-    const d1Y = point[1] - line[0][1];
-    const d1 = Math.sqrt(d1X * d1X + d1Y * d1Y);
-    const d2X = point[0] - line[1][0];
-    const d2Y = point[1] - line[1][1];
-    const d2 = Math.sqrt(d2X * d2X + d2Y * d2Y);
-    const lineLen = distance(line[0], line[1]);
-
-    const d = d1 + d2;
-    return d >= lineLen - epsilon && d <= lineLen + epsilon;
+  subtract(value: Vector2): Vector2 {
+    return new Vector2(this.x - value.x, this.y - value.y);
   }
-} as const;
 
-export const distance = (a: [number, number], b: [number, number]) => {
-  const dx = b[0] - a[0];
-  const dy = b[1] - a[1];
-  return Math.sqrt(dx * dx + dy * dy);
-};
-
-export const bounds = (id: string, containerId?: string): DOMRect | null => {
-  const clientRect = document.getElementById(id)?.getBoundingClientRect();
-  if (clientRect) {
-    if (containerId) {
-      const containerRect = document.getElementById(containerId)?.getBoundingClientRect();
-      if (containerRect) {
-        return new DOMRect(
-          clientRect.x - containerRect.x,
-          clientRect.y - containerRect.y,
-          clientRect.width,
-          clientRect.height
-        );
-      }
-    } else {
-      return clientRect;
-    }
+  toString() {
+    return `[${this.x.toFixed(2)}, ${this.y.toFixed(2)}]`;
   }
-  return null;
-};
 
-export const toContainerRelativePos = (
-  containerId: string,
-  pos: [number, number]
-): [number, number] => {
-  const containerRect = document.getElementById(containerId)!.getBoundingClientRect();
-  return [pos[0] - containerRect.left, pos[1] - containerRect.top];
-};
-
-export const clamp = (v: number, min: number, max: number) => {
-  if (v > max) return max;
-  if (v < min) return min;
-  return v;
-};
-
-export const snap = (v: number, cell: number) => Math.round(v / cell) * cell;
-export const toGrid = (v: number, cell: number) => Math.round(v / cell);
-
-export const classes = (v: Record<string, any>) => {
-  const out = [];
-  for (const [name, cond] of Object.entries(v)) {
-    if (!!cond) out.push(name);
+  css() {
+    return { left: `${this.x}px`, top: `${this.y}px` }
   }
-  return out.join(" ");
+}
+/**
+ * Shorthand for `new Vector2(x, y)`
+ */
+export const v2 = (x: number = 0, y: number = 0) => new Vector2(x, y);
+v2.from = (v: [number, number]) => new Vector2(v[0], v[1]);
+/**
+ * Calculates the midpoint of `a` and `b`
+ */
+v2.pmid = (a: Vector2, b: Vector2) => new Vector2((a.x + b.x) / 2, (a.y + b.y) / 2);
+/**
+ * Calculates the midpoint of `rect`
+ */
+v2.rectMid = (rect: DOMRect) => new Vector2(rect.x + rect.width / 2, rect.y + rect.height / 2);
+
+/**
+ * Conditional classes
+ *
+ * Usage:
+ * ```jsx
+ * <element
+ *   style={classes({
+ *     "disabled": isDisabled
+ *   })}
+ * />
+ * ```
+ */
+export const classes = (v: Record<string, boolean>) =>
+  Object.entries(v)
+    .filter(([_, include]) => include)
+    .map(([name]) => name)
+    .join(" ");
+
+/**
+ * SVG path generators
+ *
+ * Usage:
+ * ```jsx
+ * <path d={path.line(v2(0, 0), v2(50, 50))} />
+ * <path d={path.bezier(v2(0, 0), v2(50, 50))} />
+ * ```
+ */
+export const path = {
+  line: (start: Vector2, end: Vector2) => `M ${start.x} ${start.y} L ${end.x} ${end.y}`,
+  bezier: (start: Vector2, end: Vector2) => {
+    const mid = v2.pmid(start, end);
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;
+    return (
+      `M ${start.x} ${start.y} ` +
+      `Q ${start.x - dx / 32} ${start.y + dy / 2}, ${mid.x} ${mid.y} ` +
+      `T ${end.x} ${end.y}`
+    );
+  }
 };
 
-export const isNodeNested = (el: HTMLElement) => el.classList.contains("nested");
-export const getNodeType = (el: HTMLElement) => el.dataset.type as "node" | "group" | undefined;
-export const isNodeGroup = (el: HTMLElement) => el.dataset.type === "group";
-export const getParentId = (el: HTMLElement) => el.dataset.parent;
-
-export const remove = <T>(array: T[], predicate: (value: T) => boolean): T | null => {
-  let removed: T | null = null;
+/**
+ * Remove from `array` all items for which `predicate` is `true`,
+ * returning the removed items, or `null` if not found.
+ *
+ * This is different from `Array.filter` in that it returns the
+ * removed items, instead of the filtered array. It also removes
+ * items for which the predicate is `true`, where as `filter`
+ * preserves items for which the predicate is `true`.
+ *
+ * ```js
+ * const array = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+ * const even = removeAll(array, v => v % 2 === 0);
+ * even; // [0, 2, 4, 6, 8]
+ * array; // [1, 3, 5, 7, 9]
+ * ```
+ *
+ * This mutates `array` in-place. If that is undesirable,
+ * copy your array first:
+ * ```js
+ * removeAll([...myArray], v => v % 2 === 0)
+ * ```
+ */
+export const removeAll = <T>(
+  array: T[],
+  predicate: (item: T, index: number, array: T[]) => boolean
+): T[] => {
+  let removed = [];
   for (let i = 0, len = array.length; i < len; ++i) {
-    if (removed) array[i - 1] = array[i];
-    else if (predicate(array[i])) removed = array[i];
+    const item = array[i];
+    if (predicate(item, i, array)) removed.push(item);
+    else array[i - removed.length] = item;
   }
-  if (removed) array.length -= 1;
+  array.length -= removed.length;
   return removed;
 };
 
-const nodeKinds = ["node", "input", "output"] as const;
-export type NodeKind = typeof nodeKinds[number];
-const isNodeKind = (v: any): v is NodeKind => nodeKinds.includes(v);
+const EDGE_REGEX = /(.+)->(.+)/;
 
-export interface NodeInfo {
-  type: NodeKind;
-  id: string;
+export interface ProcessedEdge {
+  edge: string;
+  d: string;
 }
-
-export const Id = {
-  node(id: string, ghost = false) {
-    let out = `node:${id}`;
-    if (ghost) out += ":ghost";
-    return out;
-  },
-  input(id: string) {
-    return `input:${id}`;
-  },
-  output(id: string) {
-    return `output:${id}`;
-  },
-  parse(nid: string): NodeInfo | null {
-    const [type, id] = nid.split(":");
-    if (type && id && isNodeKind(type))
-      return {
-        type,
-        id
-      };
-    else return null;
+export const processEdge = (
+  container: ParentNode,
+  edge: `${string}->${string}`,
+  offset: Vector2
+): ProcessedEdge | null => {
+  const info = edge.match(EDGE_REGEX);
+  if (!info) {
+    throw new Error(
+      `Invalid edge '${edge}', the format should be \`\${source}.\${output}->\${destination}.\${input}`
+    );
   }
-} as const;
+  const [src, dst] = info.slice(1);
+  const from = container.querySelector(`div[data-name='${src}']`);
+  const to = container.querySelector(`div[data-name='${dst}']`);
+  if (!from || !to) {
+    const [which, io] = from ? ["destination", "input"] : ["source", "output"];
+    throw new Error(`Invalid edge '${edge}', ${which} node does not exist or has no such ${io}`);
+  }
+  if (from.parentElement!.dataset.type === "group" || to.parentElement!.dataset.type === "group") {
+    const which = from.parentElement!.dataset.type === "group" ? "source" : "destination";
+    throw new Error(`Invalid edge '${edge}', ${which} node is inside a group`);
+  }
+  const srcMid = v2.rectMid(from.getBoundingClientRect()).subtract(offset);
+  const dstMid = v2.rectMid(to.getBoundingClientRect()).subtract(offset);
+  return { edge, d: path.bezier(srcMid, dstMid) };
+};

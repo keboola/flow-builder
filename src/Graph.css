@@ -1,140 +1,82 @@
-body {
-  width: 100vw;
-  height: 100vh;
-}
-
-div#root {
-  width: 100%;
-  height: 100%;
-}
-
-.graph-container {
-  position: relative;
+.flow-builder {
   display: block;
+  position: relative;
   box-sizing: content-box;
   width: 100%;
   height: 100%;
 }
 
-.graph-container * {
-  box-sizing: content-box;
-  /* disable user-select https://stackoverflow.com/a/4407335/11953579 */
-  -webkit-touch-callout: none; /* iOS Safari */
-  -webkit-user-select: none; /* Safari */
-  -khtml-user-select: none; /* Konqueror HTML */
-  -moz-user-select: none; /* Old versions of Firefox */
-  -ms-user-select: none; /* Internet Explorer/Edge */
-  user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
-}
-
-.graph-container > svg {
+.flow-builder svg {
   width: 100%;
   height: 100%;
   pointer-events: none;
 }
 
-.graph-node {
+.flow-builder svg path {
+  stroke: black;
+  fill: transparent;
+}
+
+.flow-builder--node {
+  position: absolute;
   display: inline-flex;
   flex-direction: row;
-  position: absolute;
-  background-color: #cccccc;
-  cursor: move;
-}
-.graph-node.nested {
-  position: static;
-}
-.graph-node.ghost {
-  background-color: #000000;
-  opacity: 0.1;
-}
-.graph-node.selected {
-  background-color: #bbbbbb;
-}
-
-.graph-node-content {
-  --draggable-area: 10px;
-  display: inline-flex;
-  margin: var(--draggable-area);
-  cursor: default;
-  background-color: white;
-}
-
-.graph-node > .outline {
-  position: absolute;
-  margin: 0;
-  display: none;
   background-color: transparent;
-  border-style: solid;
-  border-color: green;
-  border-radius: 6px;
-  border-width: 2px;
-  width: calc(101% + 5px);
-  height: calc(101% + 5px);
-  top: -5px;
-  left: -5px;
-  pointer-events: none;
-}
-.graph-node > .outline.selected {
-  display: block;
+  transform: translate(-50%, -50%);
 }
 
-.io-container {
+.flow-builder--content {
+  width: 100%;
+  height: 100%;
+  display: inline-flex;
+  flex-direction: row;
+}
+
+.flow-builder--group {
+  position: absolute;
+  display: inline-flex;
+  flex-direction: row;
+  background-color: transparent;
+  transform: translate(-50%, -50%);
+}
+
+.flow-builder--group .flow-builder--node {
+  position: static;
+  transform: none;
+}
+
+.flow-builder--group .flow-builder--node .flow-builder--io {
+  display: none;
+}
+
+.flow-builder--io {
   position: absolute;
   display: flex;
   justify-content: space-evenly;
   align-items: center;
-  top: -8px;
-  bottom: auto;
   width: 100%;
   height: 16px;
   margin: 0;
   pointer-events: none;
   background-color: transparent;
 }
-.io-container.bottom {
+
+.flow-builder--io.flow-builder--io-top {
+  top: -8px;
+  bottom: auto;
+}
+
+.flow-builder--io.flow-builder--io-bottom {
   top: auto;
   bottom: -8px;
 }
-.io-container > div {
+
+.flow-builder--io-port {
   position: static;
   margin: 0;
   width: 16px;
   height: 16px;
   border-radius: 100%;
   background-color: red;
-  cursor: crosshair;
   pointer-events: all;
-}
-
-/*********** temporary ***********/
-.node-content-test {
-  width: 100px;
-  height: 80px;
-}
-button.add-node {
-  padding: 0;
-  margin: 0;
-  width: 24px;
-  height: 24px;
-  border-radius: 100%;
-  border-color: black;
-  background-color: #ffffff;
-  box-shadow: 0 0 3px 0.2px green;
-}
-button.add-node:hover {
-  background-color: #bbffbb;
-}
-button.remove-node {
-  float: right;
-  padding: 0;
-  margin: 0;
-  width: 24px;
-  height: 24px;
-  border-radius: 100%;
-  border-color: black;
-  background-color: #ffffff;
-  box-shadow: 0 0 3px 0.2px red;
-}
-button.remove-node:hover {
-  background-color: #ffbbbb;
 }
