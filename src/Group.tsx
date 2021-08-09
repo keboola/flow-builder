@@ -17,16 +17,14 @@ export const Group = (props: Group.Props) => {
         className={"flow-builder--group"}
         style={v2.from(props.position).css()}
       >
-        <div className="flow-builder--content">
-          {children}
-        </div>
+        <div className="flow-builder--content">{children}</div>
         <div className="flow-builder--io flow-builder--io-top">
-          {inputs.map(name => (
+          {inputs.map((name) => (
             <div className="flow-builder--io-port" key={name} data-name={`${props.name}.${name}`} />
           ))}
         </div>
         <div className="flow-builder--io flow-builder--io-bottom">
-          {outputs.map(name => (
+          {outputs.map((name) => (
             <div className="flow-builder--io-port" key={name} data-name={`${props.name}.${name}`} />
           ))}
         </div>
@@ -36,8 +34,8 @@ export const Group = (props: Group.Props) => {
 };
 export namespace Group {
   export type Props = {
-    name: string,
-    position: [number, number],
-    children?: React.ReactElement | React.ReactElement[]
-  }
+    name: string;
+    position: [number, number];
+    children?: React.ReactElement | React.ReactElement[];
+  };
 }

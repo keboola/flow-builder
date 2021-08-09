@@ -12,7 +12,7 @@ export class Vector2 {
   }
 
   css() {
-    return { left: `${this.x}px`, top: `${this.y}px` }
+    return { left: `${this.x}px`, top: `${this.y}px` };
   }
 }
 /**

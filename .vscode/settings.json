@@ -5,6 +5,12 @@
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "[svelte]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -19,5 +25,6 @@
   },
   "editor.detectIndentation": false,
   "editor.tabSize": 2,
-  "editor.insertSpaces": true
+  "editor.insertSpaces": true,
+  "editor.formatOnSave": true
 }

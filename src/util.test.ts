@@ -3,11 +3,8 @@ import { Vector2, v2 } from "./util";
 // TODO: test v2, getTypeName, validateChildren, classes, removeAll
 
 const vector2Equals = (a: Vector2, b: Vector2) => {
-  return (
-    (Math.abs(b.x - a.x) < 0.00001) &&
-    (Math.abs(b.y - a.y) < 0.00001)
-  );
-}
+  return Math.abs(b.x - a.x) < 0.00001 && Math.abs(b.y - a.y) < 0.00001;
+};
 
 describe("Vector2", () => {
   it.each([

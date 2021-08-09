@@ -1,0 +1,24 @@
+on:
+  release:
+    types: [created]
+
+name: Node.js Package
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      # Setup .npmrc file to publish to npm
+      - uses: actions/setup-node@v1
+        with:
+          cache: "yarn"
+          node-version: "16.x"
+          registry-url: "https://registry.npmjs.org"
+
+      - run: yarn
+      - run: yarn format-check
+      - run: yarn test
+      - run: yarn publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
