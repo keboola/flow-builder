@@ -3,12 +3,14 @@ import { Graph, Group, Node, Input, Output } from "@keboola/flow-builder";
 
 const App = () => {
   return (
-    <div style={{
-      position: "relative",
-      left: "20px",
-      width: "50%",
-      height: "50%"
-    }}>
+    <div
+      style={{
+        position: "relative",
+        left: "20px",
+        width: "50%",
+        height: "50%"
+      }}
+    >
       <style>
         {`
         .content {
@@ -39,10 +41,7 @@ const App = () => {
         }
         `}
       </style>
-      <Graph edges={[
-        "a.success->b+c+d.run0",
-        "f.success->b+c+d.run1",
-      ]}>
+      <Graph edges={["a.success->b+c+d.run0", "f.success->b+c+d.run1"]}>
         <Node name="a" position={[50, 50]}>
           <div className="content">Test</div>
           <Output name="success" />
@@ -66,7 +65,7 @@ const App = () => {
         </Group>
       </Graph>
     </div>
-  )
-}
+  );
+};
 
 export default App;

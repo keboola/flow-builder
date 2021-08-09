@@ -10,7 +10,7 @@
     "declarationDir": "./dist",
     "sourceMap": true,
     "outDir": "./dist",
-    
+
     "strict": true,
     "noImplicitAny": true,
     "skipLibCheck": true,

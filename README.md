@@ -4,12 +4,12 @@
 $ yarn add @keboola/flow-builder
 ```
 
+### Usage
+
 ```tsx
 import * as Flow from "@keboola/flow-builder";
 
-<Flow.Graph edges={[
-  "a.out->b+c+d.in"
-]}>
+<Flow.Graph edges={["a.out->b+c+d.in"]}>
   <Flow.Node name="a" position={[50, 50]}>
     <Flow.Output name="out" />
     <div className="content">Node A</div>
@@ -26,5 +26,5 @@ import * as Flow from "@keboola/flow-builder";
       <div className="content">Node D</div>
     </Flow.Node>
   </Flow.Group>
-</Flow.Graph>
+</Flow.Graph>;
 ```
