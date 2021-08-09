@@ -15,5 +15,4 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - run: yarn
-      - run: yarn format-check
       - run: yarn test
