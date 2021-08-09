@@ -35,7 +35,7 @@
     "@types/react-dom": "^16.9.14",
     "jest": "^27.0.6",
     "postcss": "^8.3.6",
-    "prettier": "^2.2.1",
+    "prettier": "2.2.1",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "rollup": "^2.56.0",
