@@ -8,10 +8,8 @@ export const Node: React.FC<Node.Props> = (props: Node.Props) => {
 
   const context = useContext(GraphContext);
   const { inputs, outputs, remainder: children } = filter(props.children);
-  console.log("Node", props, context, inputs, outputs);
-
   if (context.parent === "Group" && (inputs.length > 0 || outputs.length > 0)) {
-    console.warn("Inputs/Outputs on Nodes within Groups are ignored");
+    console.warn("flow-builder: Inputs/Outputs on Nodes within Groups are ignored");
   }
 
   return (

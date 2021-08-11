@@ -7,7 +7,6 @@ export const Group = (props: Group.Props) => {
   if (!props.children) return null;
 
   const { inputs, outputs, remainder: children } = filter(props.children);
-  console.log("Group", props, inputs, outputs);
 
   return (
     <GraphContext.Provider value={{ parent: "Group" }}>

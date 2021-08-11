@@ -1,5 +1,3 @@
-import type React from "react";
-
 export class Vector2 {
   constructor(public x: number, public y: number) {}
 
@@ -57,9 +55,10 @@ export const classes = (v: Record<string, boolean>) =>
  * ```
  */
 export const path = {
-  line: (start: Vector2, end: Vector2) => `M ${start.x} ${start.y} L ${end.x} ${end.y}`,
-  bezier: (start: Vector2, end: Vector2) => {
-    const mid = v2.pmid(start, end);
+  line: (start: { x: number; y: number }, end: { x: number; y: number }) =>
+    `M ${start.x} ${start.y} L ${end.x} ${end.y}`,
+  bezier: (start: { x: number; y: number }, end: { x: number; y: number }) => {
+    const mid = v2.pmid(v2(start.x, start.y), v2(end.x, end.y));
     const dx = end.x - start.x;
     const dy = end.y - start.y;
     return (
@@ -106,7 +105,7 @@ export const removeAll = <T>(
   return removed;
 };
 
-const EDGE_REGEX = /(.+)->(.+)/;
+const EDGE_REGEX = /(.+\..+)->(.+\..+)/;
 
 export interface ProcessedEdge {
   edge: string;
@@ -115,26 +114,34 @@ export interface ProcessedEdge {
 export const processEdge = (
   container: ParentNode,
   edge: `${string}->${string}`,
-  offset: Vector2
-): ProcessedEdge | null => {
+  offset: Vector2,
+  calculatePath: (
+    from: { x: number; y: number },
+    to: { x: number; y: number }
+  ) => string = path.bezier
+): ProcessedEdge => {
   const info = edge.match(EDGE_REGEX);
   if (!info) {
     throw new Error(
-      `Invalid edge '${edge}', the format should be \`\${source}.\${output}->\${destination}.\${input}`
+      `flow-builder: Invalid edge '${edge}', the format should be \`\${source}.\${output}->\${destination}.\${input}`
     );
   }
+
   const [src, dst] = info.slice(1);
   const from = container.querySelector(`div[data-name='${src}']`);
   const to = container.querySelector(`div[data-name='${dst}']`);
   if (!from || !to) {
     const [which, io] = from ? ["destination", "input"] : ["source", "output"];
-    throw new Error(`Invalid edge '${edge}', ${which} node does not exist or has no such ${io}`);
+    throw new Error(
+      `flow-builder: Invalid edge '${edge}', ${which} node does not exist or has no such ${io}`
+    );
   }
   if (from.parentElement!.dataset.type === "group" || to.parentElement!.dataset.type === "group") {
     const which = from.parentElement!.dataset.type === "group" ? "source" : "destination";
-    throw new Error(`Invalid edge '${edge}', ${which} node is inside a group`);
+    throw new Error(`flow-builder: Invalid edge '${edge}', ${which} node is inside a group`);
   }
+
   const srcMid = v2.rectMid(from.getBoundingClientRect()).subtract(offset);
   const dstMid = v2.rectMid(to.getBoundingClientRect()).subtract(offset);
-  return { edge, d: path.bezier(srcMid, dstMid) };
+  return { edge, d: calculatePath(srcMid, dstMid) };
 };
