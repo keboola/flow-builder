@@ -28,14 +28,10 @@ const App = () => {
         .flow-builder--group {
           border: 1px solid rgb(223, 225, 229);
           border-radius: 8px;
-          box-shadow: 2px 2px 4px 2px rgba(245, 245, 245, 200);
+          padding: 5px;
         }
         .flow-builder--group .flow-builder--node {
-          border: none;
           box-shadow: none;
-        }
-        .flow-builder--io-port {
-          
         }
         .flow-builder--io-port[data-name$="success"] {
           background-color: green;
