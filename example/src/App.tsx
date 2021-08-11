@@ -1,4 +1,5 @@
 import React from "react";
+import "@keboola/flow-builder/dist/Graph.css";
 import { Graph, Group, Node, Input, Output } from "@keboola/flow-builder";
 
 const App = () => {

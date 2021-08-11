@@ -1,4 +1,3 @@
-import "./Graph.css";
 import { Input, Output } from "./Io";
 import { Node } from "./Node";
 import { Group } from "./Group";
