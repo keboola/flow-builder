@@ -1,4 +1,15 @@
-on: [push, pull_request]
+# Workflow is triggered on every `push` and `pull request`, ignoring any tags.
+on:
+  push:
+    branches:
+      - "**"
+    tags-ignore:
+      - "**"
+  pull_request:
+    branches:
+      - "**"
+    tags-ignore:
+      - "**"
 
 name: Build + Test
 
