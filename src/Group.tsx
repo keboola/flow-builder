@@ -18,13 +18,17 @@ export const Group = (props: Group.Props) => {
       >
         <div className="flow-builder--content">{children}</div>
         <div className="flow-builder--io flow-builder--io-top">
-          {inputs.map((name) => (
-            <div className="flow-builder--io-port" key={name} data-name={`${props.name}.${name}`} />
+          {inputs.map(({ name, children }) => (
+            <div className="flow-builder--io-port" key={name} data-name={`${props.name}.${name}`}>
+              {children}
+            </div>
           ))}
         </div>
         <div className="flow-builder--io flow-builder--io-bottom">
-          {outputs.map((name) => (
-            <div className="flow-builder--io-port" key={name} data-name={`${props.name}.${name}`} />
+          {outputs.map(({ name, children }) => (
+            <div className="flow-builder--io-port" key={name} data-name={`${props.name}.${name}`}>
+              {children}
+            </div>
           ))}
         </div>
       </div>

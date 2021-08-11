@@ -6,10 +6,10 @@ export const filter = (children: React.ReactNode) => {
   // and not directly rendered
   const remainder = Children.toArray(children);
   const inputs = removeAll(remainder, (child: any) => child?.type?._$isInput).map(
-    (child) => (child as React.ReactElement<IO.Props>).props.name
+    (child) => (child as React.ReactElement<IO.Props>).props
   );
   const outputs = removeAll(remainder, (child: any) => child?.type?._$isOutput).map(
-    (child) => (child as React.ReactElement<IO.Props>).props.name
+    (child) => (child as React.ReactElement<IO.Props>).props
   );
   return { remainder, inputs, outputs };
 };
