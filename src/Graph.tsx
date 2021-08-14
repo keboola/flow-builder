@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { v2, processEdge, ProcessedEdge } from "./util";
 
-export const Graph = ({ edges, children, calculatePath }: Graph.Props) => {
+export const Graph = ({ edges, children, style, calculatePath }: Graph.Props) => {
   if (!children) return null;
 
   const [paths, setPaths] = useState<ProcessedEdge[]>([]);
@@ -14,7 +14,7 @@ export const Graph = ({ edges, children, calculatePath }: Graph.Props) => {
   }, [edges, calculatePath]);
 
   return (
-    <div ref={container} data-type="graph" className="flow-builder">
+    <div ref={container} data-type="graph" className="flow-builder" style={{ ...style }}>
       <svg>
         {paths.map((path) => (
           <path key={path.edge} d={path.d} />
@@ -29,6 +29,7 @@ export namespace Graph {
   export type Props = {
     edges: Edge[];
     children?: React.ReactElement | React.ReactElement[];
+    style?: React.CSSProperties;
     calculatePath?: (from: { x: number; y: number }, to: { x: number; y: number }) => string;
   };
 }

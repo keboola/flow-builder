@@ -20,6 +20,7 @@ export namespace IO {
   export type Props = {
     name: string;
     children?: React.ReactNode;
+    style?: React.CSSProperties;
   };
 }
 
