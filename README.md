@@ -54,3 +54,9 @@ import * as Flow from "@keboola/flow-builder";
   src="https://unpkg.com/@keboola/flow-builder@<version>/dist/index.umd.js"
 ></script>
 ```
+
+### Local development
+
+```
+$ yarn dev
+```

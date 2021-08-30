@@ -5,6 +5,10 @@ export class Vector2 {
     return new Vector2(this.x - value.x, this.y - value.y);
   }
 
+  dist(that: Vector2): number {
+    return Math.hypot(that.x - this.x, that.y - this.y);
+  }
+
   toString() {
     return `[${this.x.toFixed(2)}, ${this.y.toFixed(2)}]`;
   }
@@ -39,10 +43,13 @@ v2.rectMid = (rect: DOMRect) => new Vector2(rect.x + rect.width / 2, rect.y + re
  * />
  * ```
  */
-export const classes = (v: Record<string, boolean>) =>
-  Object.entries(v)
-    .filter(([_, include]) => include)
-    .map(([name]) => name)
+export const classes = (...v: (string | [string, boolean])[]) =>
+  v
+    .map((c) => {
+      if (typeof c === "string") return c;
+      else return c[1] ? c[0] : null;
+    })
+    .filter((v) => v !== null)
     .join(" ");
 
 /**
@@ -113,7 +120,7 @@ export interface ProcessedEdge {
 }
 export const processEdge = (
   container: ParentNode,
-  edge: `${string}->${string}`,
+  edge: string,
   offset: Vector2,
   calculatePath: (
     from: { x: number; y: number },

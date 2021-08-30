@@ -1,19 +1,41 @@
-import React from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { v2 } from "./util";
 import { filter } from "./Io";
 import { GraphContext } from "./context";
+import { useEffect } from "react";
 
 export const Group = (props: Group.Props) => {
   if (!props.children) return null;
 
   const { inputs, outputs, remainder: children } = filter(props.children);
 
+  const container = useRef<HTMLDivElement>(null);
+  const [hovered] = useState({ value: false });
+  const onMouseMove = useCallback((evt: MouseEvent) => {
+    const rect = container.current?.getBoundingClientRect();
+    if (!rect) return false;
+    const mx = evt.clientX;
+    const my = evt.clientY;
+    const currentlyHovered =
+      rect.x < mx && rect.y < my && rect.x + rect.width > mx && rect.y + rect.height > my;
+    if (currentlyHovered !== hovered.value) {
+      hovered.value = currentlyHovered;
+      if (hovered.value) props.onMouseEnter?.();
+      else props.onMouseLeave?.();
+    }
+  }, []);
+  useEffect(() => {
+    window.addEventListener("mousemove", onMouseMove);
+    return () => window.removeEventListener("mousemove", onMouseMove);
+  }, []);
+
   return (
     <GraphContext.Provider value={{ parent: "Group" }}>
       <div
+        ref={container}
         data-type="group"
         data-name={props.name}
-        className={"flow-builder--group"}
+        className="flow-builder--group"
         style={{ ...props.style, ...v2.from(props.position).css() }}
       >
         <div className="flow-builder--content">{children}</div>
@@ -49,7 +71,9 @@ export namespace Group {
   export type Props = {
     name: string;
     position: [number, number];
+    onMouseEnter?: () => void;
+    onMouseLeave?: () => void;
     style?: React.CSSProperties;
-    children?: React.ReactElement | React.ReactElement[];
+    children?: React.ReactNode;
   };
 }

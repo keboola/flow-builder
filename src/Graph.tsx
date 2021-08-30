@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { ContainerContext } from "./context";
 import { v2, processEdge, ProcessedEdge } from "./util";
 
 export const Graph = ({ edges, children, style, calculatePath }: Graph.Props) => {
@@ -14,21 +15,22 @@ export const Graph = ({ edges, children, style, calculatePath }: Graph.Props) =>
   }, [edges, calculatePath]);
 
   return (
-    <div ref={container} data-type="graph" className="flow-builder" style={{ ...style }}>
-      <svg>
-        {paths.map((path) => (
-          <path key={path.edge} d={path.d} />
-        ))}
-      </svg>
-      {children}
-    </div>
+    <ContainerContext.Provider value={container}>
+      <div ref={container} data-type="graph" className="flow-builder" style={{ ...style }}>
+        <svg>
+          {paths.map((path) => (
+            <path key={path.edge} d={path.d} />
+          ))}
+        </svg>
+        {children}
+      </div>
+    </ContainerContext.Provider>
   );
 };
 export namespace Graph {
-  export type Edge = `${string}.${string}->${string}.${string}`;
   export type Props = {
-    edges: Edge[];
-    children?: React.ReactElement | React.ReactElement[];
+    edges: string[];
+    children?: React.ReactNode;
     style?: React.CSSProperties;
     calculatePath?: (from: { x: number; y: number }, to: { x: number; y: number }) => string;
   };
