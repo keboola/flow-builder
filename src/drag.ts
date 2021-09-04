@@ -1,0 +1,72 @@
+import { useCallback, useEffect, useState } from "react";
+import { v2, Vector2, findParent } from "./util";
+
+export type DragEventHandler = (position: [number, number]) => void;
+export function useDrag(
+  onStart?: DragEventHandler,
+  onMove?: DragEventHandler,
+  onEnd?: DragEventHandler
+) {
+  const deps = [onStart, onMove, onEnd];
+
+  // not using setState here intentionally - updating this state should not trigger re-rendering
+  const [dragState] = useState<{
+    start: Vector2 | null;
+    current: Vector2 | null;
+    node: HTMLElement | null;
+    container: HTMLElement | null;
+  }>({
+    start: null,
+    current: null,
+    node: null,
+    container: null
+  });
+
+  const offset = () =>
+    dragState.container ? v2.offsetOf(dragState.container.getBoundingClientRect()) : v2();
+
+  useEffect(() => {
+    const onMouseMove = (evt: MouseEvent) => {
+      if (!dragState.start) return;
+      const mpos = v2.from(evt).subtract(offset());
+      if (dragState.current) {
+        dragState.current = mpos;
+        onMove?.(mpos.array());
+      } else if (dragState.start.dist(mpos) > 10) {
+        dragState.current = mpos;
+        onStart?.(mpos.array());
+      }
+    };
+
+    const onMouseUp = (evt: MouseEvent) => {
+      const mpos = v2.from(evt).subtract(offset());
+      if (dragState.current) onEnd?.(mpos.array());
+      dragState.start = null;
+      dragState.current = null;
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+  }, deps);
+
+  return [
+    useCallback((ref: HTMLElement | null) => {
+      if (!ref || dragState.node === ref) return;
+      dragState.node = ref;
+      dragState.container = findParent(
+        ref,
+        (node) =>
+          node.tagName.toLowerCase() === "div" &&
+          node.dataset.type === "graph" &&
+          node.classList.contains("flow-builder")
+      );
+    }, deps),
+    useCallback((evt: React.MouseEvent) => {
+      dragState.start = v2(evt.clientX, evt.clientY);
+    }, deps)
+  ] as const;
+}

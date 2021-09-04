@@ -16,12 +16,17 @@ export class Vector2 {
   css() {
     return { left: `${this.x}px`, top: `${this.y}px` };
   }
+
+  array(): [number, number] {
+    return [this.x, this.y];
+  }
 }
 /**
  * Shorthand for `new Vector2(x, y)`
  */
 export const v2 = (x: number = 0, y: number = 0) => new Vector2(x, y);
-v2.from = (v: [number, number]) => new Vector2(v[0], v[1]);
+v2.from = (v: [number, number] | MouseEvent) =>
+  v instanceof MouseEvent ? new Vector2(v.clientX, v.clientY) : new Vector2(v[0], v[1]);
 /**
  * Calculates the midpoint of `a` and `b`
  */
@@ -30,6 +35,7 @@ v2.pmid = (a: Vector2, b: Vector2) => new Vector2((a.x + b.x) / 2, (a.y + b.y) /
  * Calculates the midpoint of `rect`
  */
 v2.rectMid = (rect: DOMRect) => new Vector2(rect.x + rect.width / 2, rect.y + rect.height / 2);
+v2.offsetOf = (rect: DOMRect) => new Vector2(rect.left, rect.top);
 
 /**
  * Conditional classes
@@ -37,9 +43,7 @@ v2.rectMid = (rect: DOMRect) => new Vector2(rect.x + rect.width / 2, rect.y + re
  * Usage:
  * ```jsx
  * <element
- *   style={classes({
- *     "disabled": isDisabled
- *   })}
+ *   style={classes(["disabled", isDisabled])}
  * />
  * ```
  */
@@ -152,3 +156,18 @@ export const processEdge = (
   const dstMid = v2.rectMid(to.getBoundingClientRect()).subtract(offset);
   return { edge, d: calculatePath(srcMid, dstMid) };
 };
+
+export function* walkParents(start: HTMLElement) {
+  let parent = start.parentElement;
+  while (parent) {
+    yield parent;
+    parent = parent.parentElement;
+  }
+}
+
+export function findParent(start: HTMLElement, predicate: (node: HTMLElement) => boolean) {
+  for (const parent of walkParents(start)) {
+    if (predicate(parent)) return parent;
+  }
+  return null;
+}
