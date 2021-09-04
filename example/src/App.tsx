@@ -16,7 +16,8 @@ const App = () => {
   const forceUpdate = useForceUpdate();
   const [data] = useState([
     ["a", "b", "c"],
-    ["d", "f", "g"]
+    ["d", "e", "f"],
+    ["g", "h", "i"]
   ]);
   const dragging = useRef<{ node: string; pos: [number, number] }>();
   const hovering = useRef<string>();
@@ -112,8 +113,10 @@ const App = () => {
                 }}
                 onDragEnd={() => {
                   if (!hovering.current) return;
-                  group.splice(group.indexOf(node), 1);
-                  data.find((group) => group.join("+") === hovering.current)!.push(node);
+                  if (group.join("+") !== hovering.current) {
+                    group.splice(group.indexOf(node), 1);
+                    data.find((group) => group.join("+") === hovering.current)!.push(node);
+                  }
                   dragging.current = undefined;
                   forceUpdate();
                 }}
