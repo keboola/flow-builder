@@ -13,7 +13,7 @@ export const Node: React.FC<Node.Props> = (props: Node.Props) => {
     console.warn("flow-builder: Inputs/Outputs on Nodes within Groups are ignored");
   }
 
-  const [dragTarget, onMouseDown] = useDrag(props.onDragStart, props.onDragMove, props.onDragEnd);
+  const [dragTarget, onMouseDown] = useDrag(props.draggable ? props : { onClick: props.onClick });
 
   return (
     <div
@@ -61,8 +61,10 @@ export namespace Node {
     style?: React.CSSProperties;
     className?: string;
     children?: React.ReactNode;
+    draggable?: boolean;
     onDragStart?: (position: [number, number]) => void;
     onDragMove?: (position: [number, number]) => void;
     onDragEnd?: (position: [number, number]) => void;
+    onClick?: () => void;
   };
 }

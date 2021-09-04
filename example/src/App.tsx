@@ -100,8 +100,10 @@ const App = () => {
             <Output name="out" />
             {group.map((node) => (
               <Node
+                draggable
                 key={node}
                 name={node}
+                onClick={() => console.log("click", node)}
                 onDragStart={(pos) => {
                   dragging.current = { node, pos };
                   forceUpdate();
@@ -112,8 +114,7 @@ const App = () => {
                   forceUpdate();
                 }}
                 onDragEnd={() => {
-                  if (!hovering.current) return;
-                  if (group.join("+") !== hovering.current) {
+                  if (hovering.current && group.join("+") !== hovering.current) {
                     group.splice(group.indexOf(node), 1);
                     data.find((group) => group.join("+") === hovering.current)!.push(node);
                   }

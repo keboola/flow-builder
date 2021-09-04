@@ -2,12 +2,18 @@ import { useCallback, useEffect, useState } from "react";
 import { v2, Vector2, findParent } from "./util";
 
 export type DragEventHandler = (position: [number, number]) => void;
-export function useDrag(
-  onStart?: DragEventHandler,
-  onMove?: DragEventHandler,
-  onEnd?: DragEventHandler
-) {
-  const deps = [onStart, onMove, onEnd];
+export function useDrag({
+  onDragStart,
+  onDragMove,
+  onDragEnd,
+  onClick
+}: {
+  onDragStart?: DragEventHandler;
+  onDragMove?: DragEventHandler;
+  onDragEnd?: DragEventHandler;
+  onClick?: () => void;
+}) {
+  const deps = [onDragStart, onDragMove, onDragEnd, onClick];
 
   // not using setState here intentionally - updating this state should not trigger re-rendering
   const [dragState] = useState<{
@@ -28,19 +34,21 @@ export function useDrag(
   useEffect(() => {
     const onMouseMove = (evt: MouseEvent) => {
       if (!dragState.start) return;
-      const mpos = v2.from(evt).subtract(offset());
+      const mpos = v2.from(evt);
+      const rmpos = mpos.subtract(offset());
       if (dragState.current) {
-        dragState.current = mpos;
-        onMove?.(mpos.array());
-      } else if (dragState.start.dist(mpos) > 10) {
-        dragState.current = mpos;
-        onStart?.(mpos.array());
+        dragState.current = rmpos;
+        onDragMove?.(rmpos.array());
+      } else if (dragState.start.dist(mpos) > 20) {
+        dragState.current = rmpos;
+        onDragStart?.(rmpos.array());
       }
     };
 
     const onMouseUp = (evt: MouseEvent) => {
       const mpos = v2.from(evt).subtract(offset());
-      if (dragState.current) onEnd?.(mpos.array());
+      if (dragState.current) onDragEnd?.(mpos.array());
+      else if (dragState.start) onClick?.();
       dragState.start = null;
       dragState.current = null;
     };

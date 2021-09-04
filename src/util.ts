@@ -171,3 +171,5 @@ export function findParent(start: HTMLElement, predicate: (node: HTMLElement) =>
   }
   return null;
 }
+
+export const NOOP = function NOOP() {};
