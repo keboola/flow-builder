@@ -103,7 +103,7 @@ const App = () => {
                 draggable
                 key={node}
                 name={node}
-                onClick={() => console.log("click", node)}
+                onSelect={() => console.log("click", node)}
                 onDragStart={(pos) => {
                   dragging.current = { node, pos };
                   forceUpdate();

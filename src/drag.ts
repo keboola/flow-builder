@@ -6,14 +6,14 @@ export function useDrag({
   onDragStart,
   onDragMove,
   onDragEnd,
-  onClick
+  onSelect
 }: {
   onDragStart?: DragEventHandler;
   onDragMove?: DragEventHandler;
   onDragEnd?: DragEventHandler;
-  onClick?: () => void;
+  onSelect?: () => void;
 }) {
-  const deps = [onDragStart, onDragMove, onDragEnd, onClick];
+  const deps = [onDragStart, onDragMove, onDragEnd, onSelect];
 
   // not using setState here intentionally - updating this state should not trigger re-rendering
   const [dragState] = useState<{
@@ -48,7 +48,7 @@ export function useDrag({
     const onMouseUp = (evt: MouseEvent) => {
       const mpos = v2.from(evt).subtract(offset());
       if (dragState.current) onDragEnd?.(mpos.array());
-      else if (dragState.start) onClick?.();
+      else if (dragState.start) onSelect?.();
       dragState.start = null;
       dragState.current = null;
     };

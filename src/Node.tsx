@@ -13,7 +13,7 @@ export const Node: React.FC<Node.Props> = (props: Node.Props) => {
     console.warn("flow-builder: Inputs/Outputs on Nodes within Groups are ignored");
   }
 
-  const [dragTarget, onMouseDown] = useDrag(props.draggable ? props : { onClick: props.onClick });
+  const [dragTarget, onMouseDown] = useDrag(props.draggable ? props : { onSelect: props.onSelect });
 
   return (
     <div
@@ -23,6 +23,9 @@ export const Node: React.FC<Node.Props> = (props: Node.Props) => {
       className={classes("flow-builder--node", [props.className as string, !!props.className])}
       style={{ ...props.style, ...(props.position ? v2.from(props.position).css() : {}) }}
       onMouseDown={onMouseDown}
+      tabIndex={props.onSelect && 0}
+      onKeyDown={(event) => event.key === "Enter" && props.onSelect?.()}
+      role={props.onSelect && "button"}
     >
       <div className="flow-builder--content">{children}</div>
       <div className="flow-builder--io flow-builder--io-top">
@@ -65,6 +68,6 @@ export namespace Node {
     onDragStart?: (position: [number, number]) => void;
     onDragMove?: (position: [number, number]) => void;
     onDragEnd?: (position: [number, number]) => void;
-    onClick?: () => void;
+    onSelect?: () => void;
   };
 }
