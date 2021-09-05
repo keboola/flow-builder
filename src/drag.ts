@@ -34,6 +34,7 @@ export function useDrag({
   useEffect(() => {
     const onMouseMove = (evt: MouseEvent) => {
       if (!dragState.start) return;
+      evt.preventDefault();
       const mpos = v2.from(evt);
       const rmpos = mpos.subtract(offset());
       if (dragState.current) {
@@ -47,6 +48,7 @@ export function useDrag({
 
     const onMouseUp = (evt: MouseEvent) => {
       const mpos = v2.from(evt).subtract(offset());
+      if (dragState.current || dragState.start) evt.preventDefault();
       if (dragState.current) onDragEnd?.(mpos.array());
       else if (dragState.start) onSelect?.();
       dragState.start = null;
@@ -74,6 +76,7 @@ export function useDrag({
       );
     }, deps),
     useCallback((evt: React.MouseEvent) => {
+      evt.preventDefault();
       dragState.start = v2(evt.clientX, evt.clientY);
     }, deps)
   ] as const;
