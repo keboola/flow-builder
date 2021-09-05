@@ -1,10 +1,10 @@
 import React, { useContext } from "react";
-import { classes, v2 } from "./util";
+import { classes, v2, multiref } from "./util";
 import { filter } from "./Io";
 import { GraphContext } from "./context";
 import { useDrag } from "./drag";
 
-export const Node: React.FC<Node.Props> = (props: Node.Props) => {
+export const Node = React.forwardRef<HTMLDivElement, Node.Props>((props, fref) => {
   if (!props.children) return null;
 
   const context = useContext(GraphContext);
@@ -17,7 +17,7 @@ export const Node: React.FC<Node.Props> = (props: Node.Props) => {
 
   return (
     <div
-      ref={dragTarget}
+      ref={multiref<HTMLDivElement>(dragTarget, fref)}
       data-type="node"
       data-name={props.name}
       className={classes("flow-builder--node", [props.className as string, !!props.className])}
@@ -56,7 +56,7 @@ export const Node: React.FC<Node.Props> = (props: Node.Props) => {
       </div>
     </div>
   );
-};
+});
 export namespace Node {
   export type Props = {
     name: string;

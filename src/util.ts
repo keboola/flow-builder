@@ -172,4 +172,21 @@ export function findParent(start: HTMLElement, predicate: (node: HTMLElement) =>
   return null;
 }
 
+export type RefCallback<T extends Element> = (instance: T | null) => void;
+export type MutableRefObject<T extends Element> = {
+  current: T | null;
+};
+export function multiref<T extends Element>(
+  ...refs: (RefCallback<T> | MutableRefObject<T> | null)[]
+) {
+  return (instance: T | null) => {
+    for (let i = 0; i < refs.length; ++i) {
+      const ref = refs[i];
+      if (!ref) continue;
+      if (typeof ref === "function") ref(instance);
+      else ref.current = instance;
+    }
+  };
+}
+
 export const NOOP = function NOOP() {};
