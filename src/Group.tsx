@@ -9,6 +9,8 @@ export const Group = (props: Group.Props) => {
 
   const { inputs, outputs, remainder: children } = filter(props.children);
 
+  const deps = [props.onMouseEnter, props.onMouseLeave];
+
   const container = useRef<HTMLDivElement>(null);
   const [hovered] = useState({ value: false });
   const onMouseMove = useCallback((evt: MouseEvent) => {
@@ -23,11 +25,11 @@ export const Group = (props: Group.Props) => {
       if (hovered.value) props.onMouseEnter?.();
       else props.onMouseLeave?.();
     }
-  }, []);
+  }, deps);
   useEffect(() => {
     window.addEventListener("mousemove", onMouseMove);
     return () => window.removeEventListener("mousemove", onMouseMove);
-  }, []);
+  }, deps);
 
   return (
     <GraphContext.Provider value={{ parent: "Group" }}>
