@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from "react";
-import { v2 } from "./util";
+import { classes, v2 } from "./util";
 import { filter } from "./Io";
 import { GraphContext } from "./context";
 import { useEffect } from "react";
@@ -37,8 +37,8 @@ export const Group = (props: Group.Props) => {
         ref={container}
         data-type="group"
         data-name={props.name}
-        className="flow-builder--group"
-        style={{ ...props.style, ...v2.from(props.position).css() }}
+        className={classes("flow-builder--group", [props.className as string, !!props.className])}
+        style={{ ...props.style, ...(props.position ? v2.from(props.position).css() : {}) }}
       >
         <div className="flow-builder--content">{children}</div>
         <div className="flow-builder--io flow-builder--io-top">
@@ -72,10 +72,11 @@ export const Group = (props: Group.Props) => {
 export namespace Group {
   export type Props = {
     name: string;
-    position: [number, number];
+    position?: [number, number];
     onMouseEnter?: () => void;
     onMouseLeave?: () => void;
     style?: React.CSSProperties;
     children?: React.ReactNode;
+    className?: string;
   };
 }
