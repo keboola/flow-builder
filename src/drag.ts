@@ -11,7 +11,7 @@ export function useDrag({
   onDragStart?: DragEventHandler;
   onDragMove?: DragEventHandler;
   onDragEnd?: DragEventHandler;
-  onSelect?: () => void;
+  onSelect?: (event: MouseEvent) => void;
 }) {
   const deps = [onDragStart, onDragMove, onDragEnd, onSelect];
 
@@ -46,11 +46,11 @@ export function useDrag({
       }
     };
 
-    const onMouseUp = (evt: MouseEvent) => {
-      const mpos = v2.from(evt).subtract(offset());
-      if (dragState.current || dragState.start) evt.preventDefault();
+    const onMouseUp = (event: MouseEvent) => {
+      const mpos = v2.from(event).subtract(offset());
+      if (dragState.current || dragState.start) event.preventDefault();
       if (dragState.current) onDragEnd?.(mpos.array());
-      else if (dragState.start) onSelect?.();
+      else if (dragState.start) onSelect?.(event);
       dragState.start = null;
       dragState.current = null;
     };

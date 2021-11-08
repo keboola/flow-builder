@@ -24,7 +24,7 @@ export const Node = React.forwardRef<HTMLDivElement, Node.Props>((props, fref) =
       style={{ ...props.style, ...(props.position ? v2.from(props.position).css() : {}) }}
       onMouseDown={onMouseDown}
       tabIndex={props.onSelect && 0}
-      onKeyDown={(event) => event.key === "Enter" && props.onSelect?.()}
+      onKeyDown={(event) => event.key === "Enter" && props.onSelect?.(event)}
       role={props.onSelect && "button"}
     >
       <div className="flow-builder--content">{children}</div>
@@ -68,6 +68,6 @@ export namespace Node {
     onDragStart?: (position: [number, number]) => void;
     onDragMove?: (position: [number, number]) => void;
     onDragEnd?: (position: [number, number]) => void;
-    onSelect?: () => void;
+    onSelect?: (event: React.KeyboardEvent | MouseEvent) => void;
   };
 }
