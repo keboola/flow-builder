@@ -6,17 +6,6 @@
   height: 100%;
 }
 
-.flow-builder > svg {
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.flow-builder > svg path {
-  stroke: black;
-  fill: transparent;
-}
-
 .flow-builder--node {
   position: absolute;
   display: inline-flex;
