@@ -76,7 +76,6 @@ export function useDrag({
       );
     }, deps),
     useCallback((evt: React.MouseEvent) => {
-      evt.preventDefault();
       dragState.start = v2(evt.clientX, evt.clientY);
     }, deps)
   ] as const;
