@@ -27,7 +27,7 @@ export const Group = (props: Group.Props) => {
     }
   }, deps);
   useEffect(() => {
-    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mousemove", onMouseMove, { passive: true });
     return () => window.removeEventListener("mousemove", onMouseMove);
   }, deps);
 
