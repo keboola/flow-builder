@@ -31,11 +31,6 @@ const App = () => {
     }
   };
 
-  const edges = [];
-  for (let i = 0; i < data.length - 1; ++i) {
-    edges.push(`${data[i].join("+")}.out->${data[i + 1].join("+")}.in`);
-  }
-
   return (
     <div
       style={{
@@ -65,9 +60,6 @@ const App = () => {
           border-radius: 8px;
           box-shadow: 2px 2px 2px 1px rgba(245, 245, 245, 100);
         }
-        .flow-builder--node.drag {
-          border: 1px solid blue;
-        }
         .flow-builder--group {
           border: 1px solid rgb(223, 225, 229);
           border-radius: 8px;
@@ -76,12 +68,9 @@ const App = () => {
         .flow-builder--group .flow-builder--node {
           box-shadow: none;
         }
-        .flow-builder--io-port[data-name$="success"] {
-          background-color: green;
-        }
         `}
       </style>
-      <Graph edges={edges} calculatePath={(from, to) => `M ${from.x} ${from.y} L ${to.x} ${to.y}`}>
+      <Graph>
         {data.map((group) => (
           <Group
             onMouseEnter={() => {

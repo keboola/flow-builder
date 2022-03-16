@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { classes, v2, multiref } from "./util";
 import { filter } from "./Io";
 import { GraphContext } from "./context";
-import { useDrag } from "./drag";
+import { useDrag, DragEventHandler } from "./drag";
 
 export const Node = React.forwardRef<HTMLDivElement, Node.Props>((props, fref) => {
   if (!props.children) return null;
@@ -65,9 +65,9 @@ export namespace Node {
     className?: string;
     children?: React.ReactNode;
     draggable?: boolean;
-    onDragStart?: (position: [number, number]) => void;
-    onDragMove?: (position: [number, number]) => void;
-    onDragEnd?: (position: [number, number]) => void;
+    onDragStart?: DragEventHandler;
+    onDragMove?: DragEventHandler;
+    onDragEnd?: DragEventHandler;
     onSelect?: () => void;
   };
 }

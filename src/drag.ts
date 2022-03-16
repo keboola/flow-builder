@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { v2, Vector2, findParent } from "./util";
 
-export type DragEventHandler = (position: [number, number]) => void;
+export type DragEventHandler = (position: [number, number], client?: [number, number]) => void;
 export function useDrag({
   onDragStart,
   onDragMove,
@@ -39,7 +39,7 @@ export function useDrag({
       const rmpos = mpos.subtract(offset());
       if (dragState.current) {
         dragState.current = rmpos;
-        onDragMove?.(rmpos.array());
+        onDragMove?.(rmpos.array(), [evt.clientY, evt.clientX]);
       } else if (dragState.start.dist(mpos) > 20) {
         dragState.current = rmpos;
         onDragStart?.(rmpos.array());
@@ -76,7 +76,6 @@ export function useDrag({
       );
     }, deps),
     useCallback((evt: React.MouseEvent) => {
-      evt.preventDefault();
       dragState.start = v2(evt.clientX, evt.clientY);
     }, deps)
   ] as const;
