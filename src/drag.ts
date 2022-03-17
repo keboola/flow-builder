@@ -39,7 +39,7 @@ export function useDrag({
       const rmpos = mpos.subtract(offset());
       if (dragState.current) {
         dragState.current = rmpos;
-        onDragMove?.(rmpos.array(), [evt.clientY, evt.clientX]);
+        onDragMove?.(rmpos.array(), mpos.array());
       } else if (dragState.start.dist(mpos) > 20) {
         dragState.current = rmpos;
         onDragStart?.(rmpos.array());
