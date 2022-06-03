@@ -60,3 +60,7 @@ import * as Flow from "@keboola/flow-builder";
 ```
 $ yarn dev
 ```
+
+## License
+
+MIT licensed, see [LICENSE](./LICENSE) file.
