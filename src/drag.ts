@@ -47,9 +47,8 @@ export function useDrag({
     };
 
     const onMouseUp = (evt: MouseEvent) => {
-      const mpos = v2.from(evt).subtract(offset());
       if (dragState.current || dragState.start) evt.preventDefault();
-      if (dragState.current) onDragEnd?.(mpos.array());
+      if (dragState.current) onDragEnd?.(v2.from(evt).subtract(offset()).array());
       else if (dragState.start) onSelect?.();
       dragState.start = null;
       dragState.current = null;
