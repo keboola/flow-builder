@@ -13,20 +13,22 @@ export const Group = (props: Group.Props) => {
 
   const container = useRef<HTMLDivElement>(null);
   const [hovered] = useState({ value: false });
-  const onMouseMove = useCallback((evt: MouseEvent) => {
-    const rect = container.current?.getBoundingClientRect();
-    if (!rect) return false;
-    const mx = evt.clientX;
-    const my = evt.clientY;
-    const currentlyHovered =
-      rect.x < mx && rect.y < my && rect.x + rect.width > mx && rect.y + rect.height > my;
-    if (currentlyHovered !== hovered.value) {
-      hovered.value = currentlyHovered;
-      if (hovered.value) props.onMouseEnter?.();
-      else props.onMouseLeave?.();
-    }
-  }, deps);
+
   useEffect(() => {
+    const onMouseMove = (evt: MouseEvent) => {
+      const rect = container.current?.getBoundingClientRect();
+      if (!rect) return false;
+      const mx = evt.clientX;
+      const my = evt.clientY;
+      const currentlyHovered =
+        rect.x < mx && rect.y < my && rect.x + rect.width > mx && rect.y + rect.height > my;
+      if (currentlyHovered !== hovered.value) {
+        hovered.value = currentlyHovered;
+        if (hovered.value) props.onMouseEnter?.();
+        else props.onMouseLeave?.();
+      }
+    };
+
     window.addEventListener("mousemove", onMouseMove, { passive: true });
     return () => window.removeEventListener("mousemove", onMouseMove);
   }, deps);
