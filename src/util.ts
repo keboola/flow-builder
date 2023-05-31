@@ -111,3 +111,12 @@ export function multiref<T extends Element>(
     }
   };
 }
+
+export function mouseMoveThrottle(callback: (event: MouseEvent) => void) {
+  let requestID: number;
+
+  return function (event: MouseEvent) {
+    cancelAnimationFrame(requestID);
+    requestID = requestAnimationFrame(() => callback(event));
+  };
+}

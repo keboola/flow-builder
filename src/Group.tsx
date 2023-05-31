@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from "react";
-import { classes, v2 } from "./util";
+import { classes, mouseMoveThrottle, v2 } from "./util";
 import { filter } from "./Io";
 import { GraphContext } from "./context";
 import { useEffect } from "react";
@@ -15,7 +15,7 @@ export const Group = (props: Group.Props) => {
   const [hovered] = useState({ value: false });
 
   useEffect(() => {
-    const onMouseMove = (evt: MouseEvent) => {
+    const onMouseMove = mouseMoveThrottle((evt: MouseEvent) => {
       const rect = container.current?.getBoundingClientRect();
       if (!rect) return false;
       const mx = evt.clientX;
@@ -27,7 +27,7 @@ export const Group = (props: Group.Props) => {
         if (hovered.value) props.onMouseEnter?.();
         else props.onMouseLeave?.();
       }
-    };
+    });
 
     window.addEventListener("mousemove", onMouseMove, { passive: true });
     return () => window.removeEventListener("mousemove", onMouseMove);
