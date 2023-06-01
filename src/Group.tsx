@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from "react";
-import { classes, v2 } from "./util";
+import { classes, mouseMoveThrottle, v2 } from "./util";
 import { filter } from "./Io";
 import { GraphContext } from "./context";
 import { useEffect } from "react";
@@ -13,20 +13,22 @@ export const Group = (props: Group.Props) => {
 
   const container = useRef<HTMLDivElement>(null);
   const [hovered] = useState({ value: false });
-  const onMouseMove = useCallback((evt: MouseEvent) => {
-    const rect = container.current?.getBoundingClientRect();
-    if (!rect) return false;
-    const mx = evt.clientX;
-    const my = evt.clientY;
-    const currentlyHovered =
-      rect.x < mx && rect.y < my && rect.x + rect.width > mx && rect.y + rect.height > my;
-    if (currentlyHovered !== hovered.value) {
-      hovered.value = currentlyHovered;
-      if (hovered.value) props.onMouseEnter?.();
-      else props.onMouseLeave?.();
-    }
-  }, deps);
+
   useEffect(() => {
+    const onMouseMove = mouseMoveThrottle((evt: MouseEvent) => {
+      const rect = container.current?.getBoundingClientRect();
+      if (!rect) return false;
+      const mx = evt.clientX;
+      const my = evt.clientY;
+      const currentlyHovered =
+        rect.x < mx && rect.y < my && rect.x + rect.width > mx && rect.y + rect.height > my;
+      if (currentlyHovered !== hovered.value) {
+        hovered.value = currentlyHovered;
+        if (hovered.value) props.onMouseEnter?.();
+        else props.onMouseLeave?.();
+      }
+    });
+
     window.addEventListener("mousemove", onMouseMove, { passive: true });
     return () => window.removeEventListener("mousemove", onMouseMove);
   }, deps);

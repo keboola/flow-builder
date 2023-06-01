@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { v2, Vector2, findParent } from "./util";
+import { v2, Vector2, findParent, mouseMoveThrottle } from "./util";
 
 export type DragEventHandler = (position: [number, number], client?: [number, number]) => void;
 export function useDrag({
@@ -32,7 +32,7 @@ export function useDrag({
     dragState.container ? v2.offsetOf(dragState.container.getBoundingClientRect()) : v2();
 
   useEffect(() => {
-    const onMouseMove = (evt: MouseEvent) => {
+    const onMouseMove = mouseMoveThrottle((evt: MouseEvent) => {
       if (!dragState.start) return;
       evt.preventDefault();
       const mpos = v2.from(evt);
@@ -44,12 +44,11 @@ export function useDrag({
         dragState.current = rmpos;
         onDragStart?.(rmpos.array());
       }
-    };
+    });
 
     const onMouseUp = (evt: MouseEvent) => {
-      const mpos = v2.from(evt).subtract(offset());
       if (dragState.current || dragState.start) evt.preventDefault();
-      if (dragState.current) onDragEnd?.(mpos.array());
+      if (dragState.current) onDragEnd?.(v2.from(evt).subtract(offset()).array());
       else if (dragState.start) onSelect?.();
       dragState.start = null;
       dragState.current = null;
@@ -76,6 +75,7 @@ export function useDrag({
       );
     }, deps),
     useCallback((evt: React.MouseEvent) => {
+      if (evt.button !== 0) return;
       dragState.start = v2(evt.clientX, evt.clientY);
     }, deps)
   ] as const;
