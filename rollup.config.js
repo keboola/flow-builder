@@ -24,12 +24,5 @@ export default {
       }
     }
   ],
-  plugins: [
-    clean("dist"),
-    nodeResolve(),
-    commonjs(),
-    typescript(),
-    copy({ targets: [{ src: "src/Graph.css", dest: "dist" }] }),
-    terser()
-  ]
+  plugins: [clean("dist"), nodeResolve(), commonjs(), typescript(), copy("src/Graph.css"), terser()]
 };
