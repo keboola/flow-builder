@@ -8,7 +8,7 @@ $ yarn add @keboola/flow-builder
 
 #### ESM/CJS
 
-Ensure that `react@16.x.x` and `react-dom@16.x.x` are installed as peer dependencies.
+Ensure that `react@18.x.x` and `react-dom@18.x.x` are installed as peer dependencies.
 
 ```tsx
 import "@keboola/flow-builder/dist/Graph.css"; // include this CSS file in your bundle

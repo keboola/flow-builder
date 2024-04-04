@@ -1,5 +1,8 @@
 export class Vector2 {
-  constructor(public x: number, public y: number) {}
+  constructor(
+    public x: number,
+    public y: number
+  ) {}
 
   subtract(value: Vector2): Vector2 {
     return new Vector2(this.x - value.x, this.y - value.y);
